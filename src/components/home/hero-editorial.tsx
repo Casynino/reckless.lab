@@ -89,7 +89,7 @@ export function HeroEditorial() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.9 }}
         >
-          The first drop from the lab — the &lsquo;Reckless&rsquo; and &lsquo;Identity&rsquo; tees. Washed
+          The first drop from the lab — the &lsquo;I Exist&rsquo; and &lsquo;Reckless&rsquo; tees. Washed
           heavyweight, for the ones who don&rsquo;t follow.
         </motion.p>
 

@@ -14,8 +14,8 @@ export type Gender = "men" | "women" | "unisex";
 /** Top-level merchandising groupings surfaced in navigation. */
 export type CollectionSlug =
   | "new-arrivals"
+  | "i-exist"
   | "reckless"
-  | "identity"
   | "essentials"
   | "limited-drops"
   | "men"

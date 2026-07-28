@@ -16,22 +16,22 @@ export const collections: Collection[] = [
     cover: { src: img("T-1", 16), alt: "Reckless Lab new arrivals — washed blue tee" },
   },
   {
-    slug: "reckless",
-    title: "The Reckless Series",
+    slug: "i-exist",
+    title: "The ‘I Exist’ Series",
     tagline: "Say it without saying it.",
     description:
-      "The ‘Reckless’ Tee — washed heavyweight, an arched RECKLESS front and a quiet ‘I EXIST’ across the back. A statement for people who never have to make one.",
+      "The ‘I Exist’ Tee — washed heavyweight, an arched RECKLESS front and a quiet ‘I EXIST’ across the back. A statement for people who never have to make one.",
     code: "SET//01",
-    cover: { src: img("T-1", 14), alt: "‘Reckless’ tee, washed blue, back print" },
+    cover: { src: img("T-1", 14), alt: "‘I Exist’ tee, washed blue, back print" },
   },
   {
-    slug: "identity",
-    title: "The Identity Series",
+    slug: "reckless",
+    title: "The Reckless Series",
     tagline: "The mark of the lab.",
     description:
-      "The ‘Identity’ Tee — our stylised R and its serpent, printed big on the back and small on the chest. Four washed colourways of the same idea.",
+      "The ‘Reckless’ Tee — our stylised R and its serpent, printed big on the back and small on the chest. Four washed colourways of the same idea.",
     code: "SET//02",
-    cover: { src: img("T-2", 3), alt: "‘Identity’ tee, white, back print" },
+    cover: { src: img("T-2", 3), alt: "‘Reckless’ tee, white, back print" },
   },
   {
     slug: "essentials",
@@ -47,7 +47,7 @@ export const collections: Collection[] = [
     tagline: "Here, then gone.",
     description: "Numbered runs and one-off washes. When the counter hits zero the formula is retired.",
     code: "LAB//00",
-    cover: { src: img("T-4", 2), alt: "Washed black ‘Identity’ tee" },
+    cover: { src: img("T-4", 2), alt: "Washed black ‘Reckless’ tee" },
   },
   {
     slug: "men",
@@ -63,7 +63,7 @@ export const collections: Collection[] = [
     tagline: "Understated. Undeniable.",
     description: "Every piece is unisex — cut boxy, styled your way. Size down for a cropped fit.",
     code: "LAB//W",
-    cover: { src: img("T-2", 13), alt: "White ‘Identity’ tee, styled" },
+    cover: { src: img("T-2", 13), alt: "White ‘Reckless’ tee, styled" },
   },
   {
     slug: "future",
