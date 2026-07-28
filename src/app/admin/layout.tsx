@@ -11,5 +11,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session) redirect("/login?next=/admin");
   if (session.role !== "admin") redirect("/account");
 
-  return <AdminShell adminName={session.name}>{children}</AdminShell>;
+  return (
+    <AdminShell adminName={session.name} adminEmail={session.email}>
+      {children}
+    </AdminShell>
+  );
 }
