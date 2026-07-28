@@ -4,8 +4,8 @@ import { AnalyticsView } from "@/components/admin/analytics-view";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminAnalytics() {
-  const data = computeAnalytics();
+export default async function AdminAnalytics() {
+  const data = await computeAnalytics();
   return (
     <div>
       <PageTitle title="Analytics" subtitle="Live business intelligence — revenue, orders, customers, products." />

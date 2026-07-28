@@ -3,8 +3,8 @@ import { PageTitle } from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminCustomers() {
-  const customers = listCustomers().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+export default async function AdminCustomers() {
+  const customers = (await listCustomers()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   return (
     <div>

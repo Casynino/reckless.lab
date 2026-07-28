@@ -14,8 +14,8 @@ export default async function CustomerMessages() {
   const session = await getSession();
   if (!session) redirect("/login?next=/account/messages");
 
-  const convo = getOrCreateForCustomer({ id: session.sub, name: session.name, email: session.email });
-  markRead(convo.id, "customer");
+  const convo = await getOrCreateForCustomer({ id: session.sub, name: session.name, email: session.email });
+  await markRead(convo.id, "customer");
 
   return (
     <div className="pb-24">

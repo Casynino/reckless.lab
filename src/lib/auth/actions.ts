@@ -26,7 +26,7 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
 
   if (!email || !password) return { error: "Enter your email and password." };
 
-  const user = findByEmail(email);
+  const user = await findByEmail(email);
   if (!user || !verifyPassword(password, user.salt, user.passwordHash)) {
     return { error: "Wrong email or password." };
   }
@@ -48,7 +48,7 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
 
   let user;
   try {
-    user = createUser({ name, email, password, role: "customer" });
+    user = await createUser({ name, email, password, role: "customer" });
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Could not create account." };
   }
@@ -74,7 +74,7 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
 
   let user;
   try {
-    user = updateUserProfile(session.sub, { name, email });
+    user = await updateUserProfile(session.sub, { name, email });
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Could not update profile." };
   }
@@ -93,10 +93,10 @@ export async function changePasswordAction(_prev: AuthState, formData: FormData)
   const current = String(formData.get("current") ?? "");
   const next = String(formData.get("next") ?? "");
   if (next.length < 6) return { error: "New password must be at least 6 characters." };
-  if (!findById(session.sub)) return { error: "Account not found." };
+  if (!(await findById(session.sub))) return { error: "Account not found." };
 
   try {
-    updateUserPassword(session.sub, current, next);
+    await updateUserPassword(session.sub, current, next);
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Could not change password." };
   }
@@ -121,6 +121,6 @@ export async function saveAddressAction(_prev: AuthState, formData: FormData): P
   if (!address.fullName || !address.address1 || !address.city) {
     return { error: "Name, address and city are required." };
   }
-  updateUserAddress(session.sub, address);
+  await updateUserAddress(session.sub, address);
   return { ok: true };
 }

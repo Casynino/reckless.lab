@@ -1,5 +1,5 @@
 import "server-only";
-import { products } from "@/lib/data/products";
+import { getAllProducts } from "@/lib/data";
 import { listOrders } from "./store";
 import { listCustomers } from "@/lib/auth/store";
 import { productStock } from "@/lib/inventory/store";
@@ -47,9 +47,8 @@ function startOfDay(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-export function computeAnalytics(): Analytics {
-  const orders = listOrders();
-  const customers = listCustomers();
+export async function computeAnalytics(): Promise<Analytics> {
+  const [orders, customers, products] = await Promise.all([listOrders(), listCustomers(), getAllProducts()]);
   const now = new Date();
   const today = startOfDay(now).getTime();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth/session-cookies";
 import { computeAnalytics } from "@/lib/orders/analytics";
 import { listOrders } from "@/lib/orders/store";
-import { products } from "@/lib/data/products";
+import { getAllProducts } from "@/lib/data";
 import { productStock } from "@/lib/inventory/store";
 import { formatPrice } from "@/lib/shop/format";
 import { STATE_META } from "@/lib/orders/types";
@@ -19,8 +19,12 @@ import { cn } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverview() {
-  const [session, a] = await Promise.all([getSession(), Promise.resolve(computeAnalytics())]);
-  const orders = listOrders();
+  const [session, a, orders, products] = await Promise.all([
+    getSession(),
+    computeAnalytics(),
+    listOrders(),
+    getAllProducts(),
+  ]);
   const recent = orders.slice(0, 5);
 
   const totalUnits = products.reduce((n, p) => n + productStock(p), 0);

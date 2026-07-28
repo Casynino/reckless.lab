@@ -1,138 +1,124 @@
 import "server-only";
-import fs from "fs";
-import path from "path";
-import { randomUUID } from "crypto";
+import { db } from "@/lib/db";
+import type { Role as PrismaRole } from "@prisma/client";
 import type { Address, Role, UserRecord } from "./types";
 import { hashPassword, verifyPassword } from "./password";
 
 /**
- * Simple file-backed user store — zero-setup, persists locally across restarts.
- * This is the ONLY module that touches user storage, so swapping it for
- * Postgres/Prisma later is a drop-in change (keep the exported function
- * signatures). Note: serverless hosts have a read-only FS — move to a DB
- * before deploying multi-instance.
+ * User store — Postgres (Prisma). Same function surface as before; the app's
+ * two-role model (admin / customer) maps onto the DB Role enum.
  */
 
-const DATA_DIR = path.join(process.cwd(), ".data");
-const FILE = path.join(DATA_DIR, "users.json");
-
-function ensureFile() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(FILE)) fs.writeFileSync(FILE, "[]", "utf8");
+function toAppRole(r: PrismaRole): Role {
+  return r === "ADMIN" ? "admin" : "customer";
+}
+function toDbRole(r: Role): PrismaRole {
+  return r === "admin" ? "ADMIN" : "CUSTOMER";
 }
 
-function readAll(): UserRecord[] {
-  ensureFile();
-  try {
-    return JSON.parse(fs.readFileSync(FILE, "utf8")) as UserRecord[];
-  } catch {
-    return [];
-  }
-}
+type UserWithAddress = Awaited<ReturnType<typeof db.user.findFirst>> & {
+  addresses?: {
+    fullName: string;
+    phone: string;
+    line1: string;
+    line2: string | null;
+    city: string;
+    region: string | null;
+    postalCode: string | null;
+    countryCode: string;
+  }[];
+};
 
-function writeAll(users: UserRecord[]) {
-  ensureFile();
-  fs.writeFileSync(FILE, JSON.stringify(users, null, 2), "utf8");
-}
-
-/** Create the seed admin the first time the store is empty. */
-function ensureSeed(users: UserRecord[]): UserRecord[] {
-  if (users.some((u) => u.role === "admin")) return users;
-  const email = (process.env.ADMIN_EMAIL ?? "admin@recklesslab.com").toLowerCase();
-  const password = process.env.ADMIN_PASSWORD ?? "reckless2026";
-  const { salt, hash } = hashPassword(password);
-  const admin: UserRecord = {
-    id: randomUUID(),
-    email,
-    name: "Reckless Admin",
-    role: "admin",
-    passwordHash: hash,
-    salt,
-    createdAt: new Date().toISOString(),
+function toRecord(u: UserWithAddress): UserRecord {
+  const a = u!.addresses?.[0];
+  return {
+    id: u!.id,
+    email: u!.email,
+    name: u!.name,
+    role: toAppRole(u!.role),
+    passwordHash: u!.passwordHash,
+    salt: u!.salt,
+    createdAt: u!.createdAt.toISOString(),
+    address: a
+      ? {
+          fullName: a.fullName,
+          phone: a.phone,
+          address1: a.line1,
+          address2: a.line2 ?? undefined,
+          city: a.city,
+          region: a.region ?? undefined,
+          postalCode: a.postalCode ?? undefined,
+          countryCode: a.countryCode,
+        }
+      : undefined,
   };
-  const next = [admin, ...users];
-  writeAll(next);
-  return next;
 }
 
-export function getUsers(): UserRecord[] {
-  return ensureSeed(readAll());
+export async function findByEmail(email: string): Promise<UserRecord | undefined> {
+  const u = await db.user.findUnique({ where: { email: email.toLowerCase() }, include: { addresses: { take: 1 } } });
+  return u ? toRecord(u) : undefined;
 }
 
-export function findByEmail(email: string): UserRecord | undefined {
-  return getUsers().find((u) => u.email === email.toLowerCase());
+export async function findById(id: string): Promise<UserRecord | undefined> {
+  const u = await db.user.findUnique({ where: { id }, include: { addresses: { take: 1 } } });
+  return u ? toRecord(u) : undefined;
 }
 
-export function findById(id: string): UserRecord | undefined {
-  return getUsers().find((u) => u.id === id);
-}
-
-export function createUser(input: {
-  email: string;
-  name: string;
-  password: string;
-  role?: Role;
-}): UserRecord {
-  const users = getUsers();
+export async function createUser(input: { email: string; name: string; password: string; role?: Role }): Promise<UserRecord> {
   const email = input.email.toLowerCase().trim();
-  if (users.some((u) => u.email === email)) {
-    throw new Error("An account with this email already exists.");
-  }
+  const existing = await db.user.findUnique({ where: { email } });
+  if (existing) throw new Error("An account with this email already exists.");
   const { salt, hash } = hashPassword(input.password);
-  const user: UserRecord = {
-    id: randomUUID(),
-    email,
-    name: input.name.trim(),
-    role: input.role ?? "customer",
-    passwordHash: hash,
-    salt,
-    createdAt: new Date().toISOString(),
-  };
-  writeAll([...users, user]);
-  return user;
+  const u = await db.user.create({
+    data: { email, name: input.name.trim(), role: toDbRole(input.role ?? "customer"), salt, passwordHash: hash },
+    include: { addresses: true },
+  });
+  return toRecord(u);
 }
 
-export function updateUserProfile(id: string, patch: { name?: string; email?: string }): UserRecord {
-  const users = getUsers();
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx === -1) throw new Error("Account not found.");
+export async function updateUserProfile(id: string, patch: { name?: string; email?: string }): Promise<UserRecord> {
   const nextEmail = patch.email?.toLowerCase().trim();
-  if (nextEmail && nextEmail !== users[idx].email && users.some((u) => u.email === nextEmail)) {
-    throw new Error("That email is already in use.");
+  if (nextEmail) {
+    const clash = await db.user.findFirst({ where: { email: nextEmail, id: { not: id } } });
+    if (clash) throw new Error("That email is already in use.");
   }
-  users[idx] = {
-    ...users[idx],
-    name: patch.name?.trim() || users[idx].name,
-    email: nextEmail || users[idx].email,
-  };
-  writeAll(users);
-  return users[idx];
+  const u = await db.user.update({
+    where: { id },
+    data: { ...(patch.name ? { name: patch.name.trim() } : {}), ...(nextEmail ? { email: nextEmail } : {}) },
+    include: { addresses: { take: 1 } },
+  });
+  return toRecord(u);
 }
 
-export function updateUserPassword(id: string, current: string, next: string): void {
-  const users = getUsers();
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx === -1) throw new Error("Account not found.");
-  if (!verifyPassword(current, users[idx].salt, users[idx].passwordHash)) {
-    throw new Error("Current password is wrong.");
-  }
+export async function updateUserPassword(id: string, current: string, next: string): Promise<void> {
+  const u = await db.user.findUnique({ where: { id } });
+  if (!u) throw new Error("Account not found.");
+  if (!verifyPassword(current, u.salt, u.passwordHash)) throw new Error("Current password is wrong.");
   const { salt, hash } = hashPassword(next);
-  users[idx] = { ...users[idx], salt, passwordHash: hash };
-  writeAll(users);
+  await db.user.update({ where: { id }, data: { salt, passwordHash: hash } });
 }
 
-export function updateUserAddress(id: string, address: Address): UserRecord | undefined {
-  const users = getUsers();
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx === -1) return undefined;
-  users[idx] = { ...users[idx], address };
-  writeAll(users);
-  return users[idx];
+export async function updateUserAddress(id: string, address: Address): Promise<void> {
+  const existing = await db.address.findFirst({ where: { userId: id } });
+  const data = {
+    fullName: address.fullName,
+    phone: address.phone,
+    line1: address.address1,
+    line2: address.address2 ?? null,
+    city: address.city,
+    region: address.region ?? null,
+    postalCode: address.postalCode ?? null,
+    countryCode: address.countryCode,
+  };
+  if (existing) await db.address.update({ where: { id: existing.id }, data });
+  else await db.address.create({ data: { ...data, userId: id } });
 }
 
-/** Admin: list customers (safe fields only). */
-export function listCustomers() {
-  return getUsers()
-    .filter((u) => u.role === "customer")
-    .map((u) => ({ id: u.id, email: u.email, name: u.name, createdAt: u.createdAt }));
+export async function listCustomers(): Promise<{ id: string; email: string; name: string; createdAt: string }[]> {
+  const rows = await db.user.findMany({
+    where: { role: "CUSTOMER" },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, email: true, name: true, createdAt: true },
+  });
+  return rows.map((u) => ({ id: u.id, email: u.email, name: u.name, createdAt: u.createdAt.toISOString() }));
 }

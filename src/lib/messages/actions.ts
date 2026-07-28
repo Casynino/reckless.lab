@@ -10,8 +10,8 @@ export async function sendCustomerMessageAction(body: string) {
   if (!session) return { error: "You're signed out." };
   const text = body.trim();
   if (!text) return { error: "Type a message." };
-  const convo = getOrCreateForCustomer({ id: session.sub, name: session.name, email: session.email });
-  addMessage(convo.id, "customer", text);
+  const convo = await getOrCreateForCustomer({ id: session.sub, name: session.name, email: session.email });
+  await addMessage(convo.id, "customer", text);
   revalidatePath("/account/messages");
   revalidatePath("/admin/messages");
   return { ok: true };
@@ -23,8 +23,8 @@ export async function sendAdminMessageAction(convId: string, body: string) {
   if (!session || session.role !== "admin") return { error: "Not authorised." };
   const text = body.trim();
   if (!text) return { error: "Type a message." };
-  if (!getConversationById(convId)) return { error: "Conversation not found." };
-  addMessage(convId, "admin", text);
+  if (!(await getConversationById(convId))) return { error: "Conversation not found." };
+  await addMessage(convId, "admin", text);
   revalidatePath("/admin/messages");
   revalidatePath("/account/messages");
   return { ok: true };
@@ -34,6 +34,6 @@ export async function markReadAction(convId: string, side: "customer" | "admin")
   const session = await getSession();
   if (!session) return;
   if (side === "admin" && session.role !== "admin") return;
-  markRead(convId, side);
+  await markRead(convId, side);
   revalidatePath(side === "admin" ? "/admin/messages" : "/account/messages");
 }

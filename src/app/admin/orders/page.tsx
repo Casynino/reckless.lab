@@ -4,8 +4,8 @@ import { OrderMonitor } from "@/components/admin/order-monitor";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminOrders() {
-  const orders = listOrders();
+export default async function AdminOrders() {
+  const orders = await listOrders();
   return (
     <div>
       <PageTitle title="Order Monitor" subtitle={`${orders.length} orders · live tracking + status control.`} />

@@ -4,8 +4,8 @@ import { AdminInbox } from "@/components/admin/admin-inbox";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminMessages() {
-  const conversations = listConversations();
+export default async function AdminMessages() {
+  const conversations = await listConversations();
   const unread = conversations.reduce((n, c) => n + c.unreadAdmin, 0);
   return (
     <div>

@@ -1,0 +1,427 @@
+// Reckless Laboratory — production schema (PostgreSQL via Prisma).
+// Local dev points DATABASE_URL at a local Postgres; production at Neon.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────── Enums ───────────────────────────────
+enum Role {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+}
+
+enum Size {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+}
+
+enum OrderState {
+  NEW
+  PAYMENT_CONFIRMED
+  PACKAGING
+  READY_TO_SHIP
+  IN_TRANSIT
+  DELIVERED
+  ISSUE
+  CANCELLED
+}
+
+enum Sender {
+  CUSTOMER
+  ADMIN
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum StockMovementType {
+  INCOMING
+  OUTGOING
+  RESERVED
+  RELEASED
+  RETURNED
+  DAMAGED
+  TRANSFER
+  ADJUSTMENT
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum NotificationType {
+  ORDER
+  STOCK
+  MESSAGE
+  SYSTEM
+}
+
+// ─────────────────────────────── Identity ───────────────────────────────
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  role          Role           @default(CUSTOMER)
+  passwordHash  String
+  salt          String
+  addresses     Address[]
+  orders        Order[]
+  conversations Conversation[]
+  wishlist      WishlistItem[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([role])
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName    String
+  phone       String
+  line1       String
+  line2       String?
+  city        String
+  region      String?
+  postalCode  String?
+  countryCode String   @default("GM")
+  isDefault   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ─────────────────────────────── Catalog ───────────────────────────────
+model Category {
+  id       String     @id @default(cuid())
+  slug     String     @unique
+  name     String
+  parentId String?
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+}
+
+model Collection {
+  id          String                @id @default(cuid())
+  slug        String                @unique
+  title       String
+  tagline     String
+  description  String
+  code        String
+  cover       String
+  coverAlt    String                @default("")
+  order       Int                   @default(0)
+  published   Boolean               @default(true)
+  products    ProductCollection[]
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+}
+
+model Product {
+  id             String              @id @default(cuid())
+  slug           String              @unique
+  name           String
+  subtitle       String
+  story          String
+  price          Int
+  compareAtPrice Int?
+  gender         Gender              @default(UNISEX)
+  colorway       String
+  isNew          Boolean             @default(false)
+  isBestSeller   Boolean             @default(false)
+  isLimited      Boolean             @default(false)
+  published      Boolean             @default(true)
+  order          Int                 @default(0)
+  details        String[]
+  materials      String[]
+  care           String[]
+  categoryId     String?
+  category       Category?           @relation(fields: [categoryId], references: [id])
+  variants       ProductVariant[]
+  images         ProductImage[]
+  collections    ProductCollection[]
+  wishlistItems  WishlistItem[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([published])
+}
+
+// Explicit many-to-many so we can order + extend the join later.
+model ProductCollection {
+  productId    String
+  collectionId String
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+  @@index([collectionId])
+}
+
+model ProductVariant {
+  id        String          @id @default(cuid())
+  productId String
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      Size
+  sku       String          @unique
+  stock     Int             @default(0)
+  reserved  Int             @default(0)
+  movements StockMovement[]
+
+  @@unique([productId, size])
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String  @default("")
+  order     Int     @default(0)
+
+  @@index([productId])
+}
+
+// ─────────────────────────────── Inventory ───────────────────────────────
+model Warehouse {
+  id        String          @id @default(cuid())
+  name      String
+  code      String          @unique
+  location  String?
+  movements StockMovement[]
+  createdAt DateTime        @default(now())
+}
+
+model StockMovement {
+  id          String            @id @default(cuid())
+  variantId   String
+  variant     ProductVariant    @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  warehouseId String?
+  warehouse   Warehouse?        @relation(fields: [warehouseId], references: [id])
+  type        StockMovementType
+  qty         Int
+  note        String?
+  actorId     String?
+  createdAt   DateTime          @default(now())
+
+  @@index([variantId])
+  @@index([type])
+}
+
+// ─────────────────────────────── Orders ───────────────────────────────
+model Order {
+  id            String       @id @default(cuid())
+  reference     String       @unique
+  tracking      String       @unique
+  userId        String?
+  user          User?        @relation(fields: [userId], references: [id])
+  customerName  String
+  customerEmail String
+  customerPhone String
+  countryCode   String       @default("GM")
+  subtotal      Int
+  shipping      Int
+  total         Int
+  state         OrderState   @default(NEW)
+  items         OrderItem[]
+  events        OrderEvent[]
+  payment       Payment?
+  couponCode    String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([state])
+  @@index([customerEmail])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  name      String
+  colorway  String
+  size      String
+  sku       String
+  price     Int
+  qty       Int
+  image     String
+
+  @@index([orderId])
+}
+
+model OrderEvent {
+  id      String     @id @default(cuid())
+  orderId String
+  order   Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  state   OrderState
+  message String?
+  at      DateTime   @default(now())
+
+  @@index([orderId])
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  orderId   String        @unique
+  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider  String        @default("whatsapp")
+  status    PaymentStatus @default(PENDING)
+  amount    Int
+  reference String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// ─────────────────────────────── Engagement ───────────────────────────────
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+model Conversation {
+  id             String    @id @default(cuid())
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id])
+  customerName   String
+  customerEmail  String
+  unreadAdmin    Int       @default(0)
+  unreadCustomer Int       @default(0)
+  messages       Message[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([updatedAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  from           Sender
+  body           String
+  at             DateTime     @default(now())
+
+  @@index([conversationId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType @default(SYSTEM)
+  title     String
+  body      String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read])
+}
+
+// ─────────────────────────────── Marketing ───────────────────────────────
+model Coupon {
+  id         String     @id @default(cuid())
+  code       String     @unique
+  type       CouponType @default(PERCENT)
+  value      Int
+  active     Boolean    @default(true)
+  usageLimit Int?
+  usedCount  Int        @default(0)
+  expiresAt  DateTime?
+  createdAt  DateTime   @default(now())
+}
+
+// ─────────────────────────────── Content ───────────────────────────────
+model Media {
+  id        String    @id @default(cuid())
+  url       String
+  blobPath  String?
+  type      MediaType @default(IMAGE)
+  alt       String    @default("")
+  folder    String    @default("uncategorised")
+  width     Int?
+  height    Int?
+  createdAt DateTime  @default(now())
+
+  @@index([folder])
+}
+
+model HomepageBlock {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  data      Json
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model BlogPost {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  excerpt     String
+  body        String
+  cover       String?
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────── Audit ───────────────────────────────
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}

@@ -17,7 +17,7 @@ export default async function AccountPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/account");
 
-  const user = findById(session.sub);
+  const user = await findById(session.sub);
   const firstName = session.name.split(" ")[0];
 
   return (

@@ -9,7 +9,7 @@ import type { OrderLine, OrderState } from "./types";
 export async function updateOrderStateAction(orderId: string, state: OrderState) {
   const session = await getSession();
   if (!session || session.role !== "admin") return { error: "Not authorised." };
-  const order = updateOrderState(orderId, state);
+  const order = await updateOrderState(orderId, state);
   if (!order) return { error: "Order not found." };
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
@@ -32,7 +32,7 @@ export async function placeOrderAction(input: {
   total: number;
 }) {
   if (!input.lines?.length) return { error: "Empty order." };
-  const order = createOrder(input);
+  const order = await createOrder(input);
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
   return { ok: true, reference: order.reference, tracking: order.tracking };

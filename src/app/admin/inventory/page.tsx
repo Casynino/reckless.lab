@@ -1,4 +1,4 @@
-import { products } from "@/lib/data/products";
+import { getAllProducts } from "@/lib/data";
 import { listOrders } from "@/lib/orders/store";
 import { variantStockMap, productStock } from "@/lib/inventory/store";
 import { PageTitle } from "@/components/admin/ui";
@@ -6,10 +6,11 @@ import { InventoryView, type InvProduct } from "@/components/admin/inventory-vie
 
 export const dynamic = "force-dynamic";
 
-export default function AdminInventory() {
+export default async function AdminInventory() {
+  const [products, orders] = await Promise.all([getAllProducts(), listOrders()]);
   // Units sold per product (from paid orders).
   const sold = new Map<string, number>();
-  for (const o of listOrders()) {
+  for (const o of orders) {
     if (o.state === "cancelled" || o.state === "new") continue;
     for (const l of o.lines) sold.set(l.productId, (sold.get(l.productId) ?? 0) + l.qty);
   }
