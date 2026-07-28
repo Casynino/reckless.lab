@@ -116,9 +116,8 @@ export function DeveloperCredit() {
                   </p>
                   <p className="mt-6 max-w-xl text-lg leading-relaxed text-bone-dim md:text-xl">
                     Self-taught developer and product designer from <span className="text-bone">Moshi</span>, raised
-                    at the foot of <span className="text-bone">Kilimanjaro</span> — now moving between Tanzania and
-                    China. I design and engineer premium, cinematic digital products end-to-end: brand, interface,
-                    motion, and the systems underneath.
+                    at the foot of <span className="text-bone">Kilimanjaro</span>. I design and engineer premium,
+                    cinematic digital products end-to-end: brand, interface, motion, and the systems underneath.
                   </p>
                   <p className="mt-5 max-w-xl leading-relaxed text-fog">
                     This entire platform — the storefront, the exhibition, the checkout, and the admin operating
