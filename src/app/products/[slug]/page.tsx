@@ -7,8 +7,9 @@ import { ProductPurchase } from "@/components/product/product-purchase";
 import { ColorwaySwitcher } from "@/components/product/colorway-switcher";
 import { ProductAccordion } from "@/components/product/product-accordion";
 import { ProductGrid } from "@/components/product/product-grid";
-import { SectionHeading } from "@/components/home/section-heading";
-import { Reveal } from "@/components/motion/reveal";
+import { ProductEditorial } from "@/components/product/product-editorial";
+import { SplitText } from "@/components/motion/split-text";
+import { ChapterTag } from "@/components/about/chapter-rail";
 
 export async function generateStaticParams() {
   const products = await getAllProducts();
@@ -79,8 +80,8 @@ export default async function ProductPage({
             </span>
           </div>
 
-          <h1 className="mt-4 font-display text-4xl text-bone md:text-5xl">{product.name}</h1>
-          <p className="mt-2 text-fog">{product.subtitle}</p>
+          <h1 className="mt-4 font-display text-5xl uppercase leading-[0.95] tracking-tight text-bone md:text-6xl">{product.name}</h1>
+          <p className="mt-3 text-fog">{product.subtitle}</p>
 
           <ColorwaySwitcher colorways={colorways} currentSlug={product.slug} />
 
@@ -88,14 +89,8 @@ export default async function ProductPage({
             <ProductPurchase product={product} />
           </div>
 
-          {/* Story */}
-          <Reveal className="mt-12">
-            <span className="eyebrow">[ THE STORY ]</span>
-            <p className="mt-4 text-lg leading-relaxed text-bone-dim">{product.story}</p>
-          </Reveal>
-
           {/* Details / Materials / Care */}
-          <div className="mt-10">
+          <div className="mt-12">
             <ProductAccordion
               sections={[
                 {
@@ -157,10 +152,16 @@ export default async function ProductPage({
         </div>
       </div>
 
+      {/* Per-product editorial band */}
+      <div className="mt-24 md:mt-32">
+        <ProductEditorial product={product} />
+      </div>
+
       {/* Recommendations */}
       {related.length > 0 && (
-        <section className="container-edge mt-28">
-          <SectionHeading code="[ STYLE IT WITH ]" title="Complete the look" className="mb-12" />
+        <section className="container-edge mt-24 md:mt-32">
+          <ChapterTag index={5} label="Style It With" />
+          <SplitText as="h2" text="Complete the look." className="mb-12 font-display display-lg text-bone" />
           <ProductGrid products={related} />
         </section>
       )}

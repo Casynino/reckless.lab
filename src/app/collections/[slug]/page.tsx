@@ -34,7 +34,12 @@ export default async function CollectionPage({
 
   return (
     <div>
-      <PageHero code={`[ ${collection.code} ]`} title={collection.title} tagline={collection.description} />
+      <PageHero
+        code={`[ ${collection.code} ]`}
+        title={collection.title}
+        tagline={collection.description}
+        image={collection.cover.src}
+      />
       <CollectionView products={products} />
     </div>
   );
