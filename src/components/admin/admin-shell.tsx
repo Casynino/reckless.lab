@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { Wordmark } from "@/components/layout/wordmark";
+import { LogoMark } from "@/components/layout/logo-mark";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { cn } from "@/lib/utils";
 
@@ -91,6 +92,7 @@ export function AdminShell({
       {/* Sidebar */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-smoke bg-ink-soft md:flex">
         <Link href="/admin" className="flex items-center gap-2 border-b border-smoke px-5 py-5 text-bone">
+          <LogoMark size={26} />
           <Wordmark className="text-sm" />
           <span className="rounded bg-acid/15 px-1.5 py-0.5 text-mono text-[0.5rem] uppercase tracking-[0.13em] text-acid">HQ</span>
         </Link>

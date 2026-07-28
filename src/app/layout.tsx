@@ -24,8 +24,17 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
+// Absolute base for OG/social image URLs. Must be the LIVE origin or link
+// previews (WhatsApp etc.) can't fetch the og:image. Override with
+// NEXT_PUBLIC_SITE_URL when a custom domain is live.
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://reckless-lab.vercel.app");
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://recklesslab.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: `${shopConfig.brand.name} — ${shopConfig.brand.tagline}`,
     template: `%s · ${shopConfig.brand.name}`,
@@ -34,11 +43,17 @@ export const metadata: Metadata = {
   openGraph: {
     title: shopConfig.brand.name,
     description: shopConfig.brand.manifesto,
+    url: SITE_URL,
+    siteName: shopConfig.brand.name,
     type: "website",
   },
-  icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  twitter: {
+    card: "summary_large_image",
+    title: shopConfig.brand.name,
+    description: shopConfig.brand.manifesto,
   },
+  // Icons resolved from the App Router file convention:
+  //   app/icon.svg (tab), app/apple-icon.tsx (iOS), app/favicon.ico (legacy).
 };
 
 export default function RootLayout({

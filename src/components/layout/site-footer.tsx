@@ -3,6 +3,7 @@ import { shopConfig } from "@/lib/shop/config";
 import { primaryNav, secondaryNav } from "@/lib/shop/nav";
 import { Marquee } from "@/components/motion/marquee";
 import { Wordmark } from "@/components/layout/wordmark";
+import { LogoMark } from "@/components/layout/logo-mark";
 
 export function SiteFooter() {
   const year = 2024; // static to keep server/client output stable
@@ -17,7 +18,8 @@ export function SiteFooter() {
 
       <div className="container-edge grid grid-cols-2 gap-10 py-16 md:grid-cols-4 md:py-24">
         <div className="col-span-2 flex flex-col justify-between md:col-span-1">
-          <Link href="/" className="text-bone" aria-label={shopConfig.brand.name}>
+          <Link href="/" className="flex items-center gap-2.5 text-bone" aria-label={shopConfig.brand.name}>
+            <LogoMark size={34} />
             <Wordmark className="text-xl" />
           </Link>
           <p className="mt-6 max-w-xs text-sm text-fog">{shopConfig.brand.manifesto}</p>

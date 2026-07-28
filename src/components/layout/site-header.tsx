@@ -9,6 +9,7 @@ import { useWishlist } from "@/lib/shop/wishlist-store";
 import { primaryNav, secondaryNav } from "@/lib/shop/nav";
 import { shopConfig } from "@/lib/shop/config";
 import { Wordmark } from "@/components/layout/wordmark";
+import { LogoMark } from "@/components/layout/logo-mark";
 import { AccountNav } from "@/components/auth/account-nav";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Magnetic } from "@/components/motion/magnetic";
@@ -82,9 +83,10 @@ export function SiteHeader() {
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
-            className="absolute left-1/2 -translate-x-1/2 text-bone"
+            className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 text-bone"
             aria-label={shopConfig.brand.name}
           >
+            <LogoMark size={26} />
             <Wordmark className="text-xs sm:text-base md:text-lg" />
           </Link>
 

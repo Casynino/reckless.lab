@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session-cookies";
 import { AuthForm } from "@/components/auth/auth-form";
+import { LogoMark } from "@/components/layout/logo-mark";
 import { shopConfig } from "@/lib/shop/config";
 
 export const metadata: Metadata = { title: "Sign In" };
@@ -22,6 +23,9 @@ export default async function LoginPage({
     <div className="flex min-h-[100svh] items-center justify-center px-6 py-28">
       <div className="w-full max-w-md">
         <div className="mb-10 text-center">
+          <div className="mb-6 flex justify-center">
+            <LogoMark size={56} />
+          </div>
           <Link href="/" className="eyebrow">
             ← {shopConfig.brand.name}
           </Link>
