@@ -1,0 +1,287 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ============================================================
+   RECKLESS LAB — design system
+   Monochrome, editorial, one acid signal used sparingly.
+   ============================================================ */
+
+@theme {
+  /* Core palette */
+  --color-ink: #0a0a0b;
+  --color-ink-soft: #121214;
+  --color-carbon: #1a1a1d;
+  --color-smoke: #2a2a2e;
+  --color-ash: #6b6b70;
+  --color-fog: #a8a8ad;
+  --color-bone: #ece8e1;
+  --color-bone-dim: #c9c5bd;
+  --color-paper: #f6f4ef;
+
+  /* The single signal colour — Reckless red, matched to the R-Serpent logo.
+     (Token is still named "acid" internally; the value is the brand red.) */
+  --color-acid: #e0342a;
+  --color-acid-dim: #b7241b;
+
+  /* Fonts (wired from next/font in layout.tsx) */
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+
+  --breakpoint-xs: 30rem;
+}
+
+/* ---------- base ---------- */
+* {
+  border-color: var(--color-smoke);
+}
+
+html {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  background: var(--color-ink);
+  color: var(--color-bone);
+}
+
+/* Kill the native cursor on pointer devices — we render our own */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor,
+  body.has-custom-cursor * {
+    cursor: none;
+  }
+}
+
+::selection {
+  background: var(--color-acid);
+  color: var(--color-ink);
+}
+
+/* Slimline scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-smoke);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ash);
+}
+
+/* ---------- typography helpers ---------- */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+/* Fluid display sizes */
+.display-hero {
+  font-size: clamp(3rem, 11.5vw, 11rem);
+}
+.display-xl {
+  font-size: clamp(2.75rem, 9vw, 8rem);
+}
+.display-lg {
+  font-size: clamp(2rem, 6vw, 5rem);
+}
+
+/* ---------- utilities ---------- */
+.container-edge {
+  padding-inline: clamp(1.25rem, 5vw, 5rem);
+}
+
+.hairline {
+  border-top: 1px solid var(--color-smoke);
+}
+
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Grain overlay */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* Split-text word/line reveal is driven by framer-motion in components. */
+.will-reveal {
+  will-change: transform, opacity;
+}
+
+/* Marquee */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+/* Intro preloader progress bar (CSS-driven, survives rAF throttling) */
+@keyframes preload-bar {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* Cinematic ken-burns for hero/campaign photography (CSS-driven) */
+@keyframes kenburns {
+  0% {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.16) translate3d(-1.5%, -2%, 0);
+  }
+}
+.animate-kenburns {
+  animation: kenburns 18s ease-out both;
+}
+
+/* Slow float */
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.animate-float {
+  animation: float-y 7s ease-in-out infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Provided 3D poem-cube animation keyframes (kept as-is for the
+   /components/ui/3d-animation component).
+   ============================================================ */
+@keyframes left {
+  100% {
+    margin-left: -54000px;
+  }
+}
+@keyframes back {
+  100% {
+    margin-left: -54870px;
+  }
+}
+@keyframes right {
+  100% {
+    margin-left: -55740px;
+  }
+}
+@keyframes filter-animation {
+  0%,
+  100% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(100deg);
+  }
+}
+@keyframes zoom-in {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(2.5);
+  }
+}
+@keyframes blur {
+  0% {
+    filter: blur(0px);
+  }
+  100% {
+    filter: blur(3px);
+  }
+}
+@keyframes brightness {
+  0% {
+    filter: brightness(1) contrast(1);
+  }
+  100% {
+    filter: brightness(0.8) contrast(1.3);
+  }
+}
+@keyframes text-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+}

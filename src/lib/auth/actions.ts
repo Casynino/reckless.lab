@@ -1,0 +1,84 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { findByEmail, createUser, updateUserAddress } from "./store";
+import { verifyPassword } from "./password";
+import { setSession, clearSession, getSession } from "./session-cookies";
+import type { Address } from "./types";
+
+export interface AuthState {
+  error?: string;
+  ok?: boolean;
+}
+
+function safeNext(next: FormDataEntryValue | null): string | null {
+  const v = typeof next === "string" ? next : "";
+  // Only allow internal paths.
+  return v.startsWith("/") && !v.startsWith("//") ? v : null;
+}
+
+/** Log in, then route by role (admin → /admin, customer → /account). */
+export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const next = safeNext(formData.get("next"));
+
+  if (!email || !password) return { error: "Enter your email and password." };
+
+  const user = findByEmail(email);
+  if (!user || !verifyPassword(password, user.salt, user.passwordHash)) {
+    return { error: "Wrong email or password." };
+  }
+
+  await setSession({ sub: user.id, email: user.email, name: user.name, role: user.role });
+  redirect(next ?? (user.role === "admin" ? "/admin" : "/account"));
+}
+
+/** Register a customer, then go to /account. */
+export async function registerAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const next = safeNext(formData.get("next"));
+
+  if (!name || !email || !password) return { error: "Fill in every field." };
+  if (!email.includes("@")) return { error: "Enter a valid email." };
+  if (password.length < 6) return { error: "Password must be at least 6 characters." };
+
+  let user;
+  try {
+    user = createUser({ name, email, password, role: "customer" });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not create account." };
+  }
+
+  await setSession({ sub: user.id, email: user.email, name: user.name, role: user.role });
+  redirect(next ?? "/account");
+}
+
+export async function logoutAction() {
+  await clearSession();
+  redirect("/");
+}
+
+/** Save the signed-in customer's shipping address. */
+export async function saveAddressAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const session = await getSession();
+  if (!session) return { error: "You're signed out." };
+
+  const address: Address = {
+    fullName: String(formData.get("fullName") ?? "").trim(),
+    phone: String(formData.get("phone") ?? "").trim(),
+    address1: String(formData.get("address1") ?? "").trim(),
+    address2: String(formData.get("address2") ?? "").trim() || undefined,
+    city: String(formData.get("city") ?? "").trim(),
+    region: String(formData.get("region") ?? "").trim() || undefined,
+    postalCode: String(formData.get("postalCode") ?? "").trim() || undefined,
+    countryCode: String(formData.get("countryCode") ?? "GM").trim(),
+  };
+  if (!address.fullName || !address.address1 || !address.city) {
+    return { error: "Name, address and city are required." };
+  }
+  updateUserAddress(session.sub, address);
+  return { ok: true };
+}
