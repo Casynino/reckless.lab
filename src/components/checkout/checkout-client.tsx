@@ -10,6 +10,7 @@ import { shippingCountries, getZoneForCountry, shippingCost, FREE_SHIPPING_THRES
 import { buildOrderDraft, buildWhatsAppUrl, buildOrderMessage } from "@/lib/shop/whatsapp";
 import { placeOrderAction } from "@/lib/orders/actions";
 import { applyCouponAction } from "@/lib/promo/actions";
+import { createAccountFromCheckoutAction } from "@/lib/auth/actions";
 import { shopConfig } from "@/lib/shop/config";
 import type { ShippingAddress } from "@/lib/types";
 import { SmartImage } from "@/components/ui/smart-image";
@@ -39,11 +40,26 @@ const FIELDS: { key: keyof ShippingAddress; label: string; required?: boolean; t
 
 type Placed = { reference: string; tracking: string; waUrl: string };
 
-export function CheckoutClient() {
+export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
   const lines = useCart((s) => s.lines);
   const clearCart = useCart((s) => s.clear);
   const [form, setForm] = useState<ShippingAddress>(EMPTY);
   const [touched, setTouched] = useState(false);
+  const [pw, setPw] = useState("");
+  const [acct, setAcct] = useState<"idle" | "saving" | "done" | "error">("idle");
+  const [acctErr, setAcctErr] = useState("");
+
+  async function createAccount() {
+    setAcctErr("");
+    setAcct("saving");
+    const res = await createAccountFromCheckoutAction({ name: form.fullName, email: form.email, password: pw });
+    if (res?.error) {
+      setAcct("error");
+      setAcctErr(res.error);
+      return;
+    }
+    setAcct("done");
+  }
   const [status, setStatus] = useState<"idle" | "placing" | "error">("idle");
   const [placed, setPlaced] = useState<Placed | null>(null);
   const [promoInput, setPromoInput] = useState("");
@@ -162,6 +178,42 @@ export function CheckoutClient() {
             Keep shopping
           </Link>
         </div>
+
+        {/* Create account from checkout details */}
+        {!loggedIn && (
+          <div className="mt-12 w-full max-w-md rounded-sm border border-smoke bg-ink-soft p-6 text-left">
+            {acct === "done" ? (
+              <p className="text-mono text-[0.65rem] uppercase tracking-[0.15em] text-acid">
+                ✓ Account created — you&apos;re signed in.{" "}
+                <Link href="/account" className="underline">Go to your dashboard →</Link>
+              </p>
+            ) : (
+              <>
+                <p className="text-mono text-[0.6rem] uppercase tracking-[0.25em] text-acid">Create your Reckless Lab account</p>
+                <p className="mt-2 text-sm text-fog">
+                  Save the details you just entered and track every order in one place. Only set a password.
+                </p>
+                <div className="mt-4 flex gap-2">
+                  <input
+                    type="password"
+                    value={pw}
+                    onChange={(e) => setPw(e.target.value)}
+                    placeholder="Choose a password (6+ chars)"
+                    className="w-full border-b border-smoke bg-transparent py-2 text-bone placeholder:text-ash/60 focus:border-bone focus:outline-none"
+                  />
+                  <button
+                    onClick={createAccount}
+                    disabled={acct === "saving" || pw.length < 6}
+                    className="shrink-0 bg-bone px-5 text-mono text-[0.6rem] font-bold uppercase tracking-[0.2em] text-ink transition-opacity hover:opacity-90 disabled:opacity-50"
+                  >
+                    {acct === "saving" ? "…" : "Create"}
+                  </button>
+                </div>
+                {acctErr && <p className="mt-2 text-mono text-[0.6rem] uppercase tracking-[0.15em] text-acid">{acctErr}</p>}
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   }

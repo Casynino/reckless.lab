@@ -80,6 +80,27 @@ export async function getOrderByReference(reference: string): Promise<Order | un
   return row ? toOrder(row) : undefined;
 }
 
+/** Aggregate order stats per customer email — for LTV / admin customer view. */
+export async function getCustomerOrderStats(): Promise<
+  Record<string, { orders: number; spend: number; last: string }>
+> {
+  const rows = await db.order.groupBy({
+    by: ["customerEmail"],
+    _count: { _all: true },
+    _sum: { total: true },
+    _max: { createdAt: true },
+  });
+  const map: Record<string, { orders: number; spend: number; last: string }> = {};
+  for (const r of rows) {
+    map[r.customerEmail.toLowerCase()] = {
+      orders: r._count._all,
+      spend: r._sum.total ?? 0,
+      last: r._max.createdAt ? r._max.createdAt.toISOString() : "",
+    };
+  }
+  return map;
+}
+
 /** A customer's own orders, newest first — matched on the checkout email. */
 export async function listOrdersForEmail(email: string): Promise<Order[]> {
   const rows = await db.order.findMany({

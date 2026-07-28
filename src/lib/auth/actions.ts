@@ -62,6 +62,26 @@ export async function logoutAction() {
   redirect("/");
 }
 
+/**
+ * Create an account straight from checkout using details already entered —
+ * the customer only sets a password. Signs them in on success.
+ */
+export async function createAccountFromCheckoutAction(input: { name: string; email: string; password: string }) {
+  const name = input.name.trim();
+  const email = input.email.trim().toLowerCase();
+  const password = input.password;
+  if (!name || !email.includes("@")) return { error: "Missing details." };
+  if (password.length < 6) return { error: "Password must be at least 6 characters." };
+  if (await findByEmail(email)) return { error: "An account with this email already exists — sign in instead." };
+  try {
+    const user = await createUser({ name, email, password, role: "customer" });
+    await setSession({ sub: user.id, email: user.email, name: user.name, role: user.role });
+  } catch {
+    return { error: "Could not create your account." };
+  }
+  return { ok: true };
+}
+
 /** Update the signed-in user's name / email (re-issues the session). */
 export async function updateProfileAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const session = await getSession();
