@@ -4,9 +4,10 @@ import { primaryNav, secondaryNav } from "@/lib/shop/nav";
 import { Marquee } from "@/components/motion/marquee";
 import { Wordmark } from "@/components/layout/wordmark";
 import { LogoMark } from "@/components/layout/logo-mark";
+import { DeveloperCredit } from "@/components/layout/developer-credit";
 
 export function SiteFooter() {
-  const year = 2024; // static to keep server/client output stable
+  const year = new Date().getFullYear();
 
   return (
     <footer className="relative border-t border-smoke bg-ink">
@@ -71,9 +72,11 @@ export function SiteFooter() {
       <div className="container-edge flex flex-col gap-2 border-t border-smoke py-6 text-mono text-[0.65rem] uppercase tracking-[0.25em] text-ash md:flex-row md:items-center md:justify-between">
         <span>© {year} {shopConfig.brand.name}. All rights reserved.</span>
         <span>{shopConfig.brand.locationLabel} · EST. {shopConfig.brand.est}</span>
-        <div className="flex gap-4">
+        <div className="flex items-center gap-4">
           <Link href="/support" className="hover:text-bone">Privacy</Link>
           <Link href="/support" className="hover:text-bone">Terms</Link>
+          <span className="text-ash/40">·</span>
+          <DeveloperCredit />
         </div>
       </div>
     </footer>

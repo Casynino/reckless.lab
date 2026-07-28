@@ -86,7 +86,7 @@ export default function SupportPage() {
         </div>
 
         <aside className="lg:sticky lg:top-28 lg:h-fit">
-          <div className="border border-smoke bg-ink-soft p-6">
+          <div className="rounded-sm border border-smoke bg-ink-soft p-6">
             <h2 className="font-display text-xl text-bone">Still need us?</h2>
             <p className="mt-3 text-sm text-fog">Our team replies fast. The quickest way to reach us is WhatsApp.</p>
             <a

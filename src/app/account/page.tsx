@@ -27,7 +27,7 @@ export default async function AccountPage() {
       <div className="container-edge grid gap-6 lg:grid-cols-[1fr_1.4fr] lg:gap-10">
         {/* Left: quick links + logout */}
         <div className="flex flex-col gap-4">
-          <div className="border border-smoke bg-ink-soft p-6">
+          <div className="rounded-sm border border-smoke bg-ink-soft p-6">
             <p className="text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">Signed in as</p>
             <p className="mt-2 font-display text-2xl text-bone">{session.name}</p>
             <p className="mt-1 text-sm text-fog">{session.email}</p>
@@ -72,7 +72,7 @@ export default async function AccountPage() {
 
         {/* Right: orders + address */}
         <div className="flex flex-col gap-8">
-          <section className="border border-smoke bg-ink-soft p-6">
+          <section className="rounded-sm border border-smoke bg-ink-soft p-6">
             <h2 className="text-mono text-xs uppercase tracking-[0.25em] text-bone">Orders</h2>
             <p className="mt-4 text-sm text-fog">
               You complete orders over WhatsApp for now, so they aren&rsquo;t tracked to your account yet. Live order
@@ -89,12 +89,12 @@ export default async function AccountPage() {
             </p>
           </section>
 
-          <section className="border border-smoke bg-ink-soft p-6">
+          <section className="rounded-sm border border-smoke bg-ink-soft p-6">
             <h2 className="mb-5 text-mono text-xs uppercase tracking-[0.25em] text-bone">Your profile</h2>
             <ProfileForm name={session.name} email={session.email} />
           </section>
 
-          <section className="border border-smoke bg-ink-soft p-6">
+          <section className="rounded-sm border border-smoke bg-ink-soft p-6">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-mono text-xs uppercase tracking-[0.25em] text-bone">Shipping address</h2>
               <span className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">
