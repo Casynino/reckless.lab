@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
 import { useRef } from "react";
 import { shopConfig } from "@/lib/shop/config";
-import { HERO } from "@/lib/brand/assets";
+import { HERO, img } from "@/lib/brand/assets";
 import { SmartImage } from "@/components/ui/smart-image";
 import { Magnetic } from "@/components/motion/magnetic";
 
@@ -20,11 +20,26 @@ export function HeroEditorial() {
   const imgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
+  // Mouse-reactive parallax
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const sx = useSpring(mx, { stiffness: 55, damping: 18 });
+  const sy = useSpring(my, { stiffness: 55, damping: 18 });
+  const bgX = useTransform(sx, [-0.5, 0.5], [16, -16]);
+  const bgY = useTransform(sy, [-0.5, 0.5], [10, -10]);
+  const cardX = useTransform(sx, [-0.5, 0.5], [-40, 40]);
+  const cardY = useTransform(sy, [-0.5, 0.5], [-26, 26]);
+  function onMove(e: React.MouseEvent<HTMLElement>) {
+    const r = e.currentTarget.getBoundingClientRect();
+    mx.set((e.clientX - r.left) / r.width - 0.5);
+    my.set((e.clientY - r.top) / r.height - 0.5);
+  }
+
   return (
-    <section ref={ref} className="relative h-[100svh] min-h-[640px] overflow-hidden bg-ink">
+    <section ref={ref} onMouseMove={onMove} className="relative h-[100svh] min-h-[640px] overflow-hidden bg-ink">
       {/* Photograph */}
       <motion.div style={{ y: imgY }} className="absolute inset-0 -bottom-24">
-        <div className="absolute inset-0 animate-kenburns">
+        <motion.div style={{ x: bgX, y: bgY }} className="absolute -inset-8 animate-kenburns">
           <SmartImage
             src={HERO.src}
             alt={HERO.alt}
@@ -34,7 +49,15 @@ export function HeroEditorial() {
             className="object-cover"
             style={{ objectPosition: HERO.focus }}
           />
-        </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Floating campaign plate — drifts with the cursor for depth */}
+      <motion.div
+        style={{ x: cardX, y: cardY, opacity }}
+        className="pointer-events-none absolute right-[6%] top-[18%] hidden h-[42vh] w-[18vw] overflow-hidden rounded-sm shadow-[0_40px_120px_rgba(0,0,0,0.6)] ring-1 ring-white/10 lg:block"
+      >
+        <SmartImage src={img("T-4", 3)} alt="Reckless Lab editorial" fill sizes="18vw" className="object-cover" />
       </motion.div>
 
       {/* Scrims — moody but transparent so the photograph stays the subject */}

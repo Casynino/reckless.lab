@@ -1,26 +1,22 @@
 import { HeroEditorial } from "@/components/home/hero-editorial";
 import { Manifesto } from "@/components/home/manifesto";
-import { FeaturedCollection } from "@/components/home/featured-collection";
+import { SeriesIndex } from "@/components/home/series-index";
+import { EditorialDrop } from "@/components/home/editorial-drop";
 import { CampaignEditorial } from "@/components/home/campaign-editorial";
 import { InteractiveGallery } from "@/components/home/interactive-gallery";
 import { BehindBrand } from "@/components/home/behind-brand";
 import { Newsletter } from "@/components/home/newsletter";
 import { InstagramGrid } from "@/components/home/instagram-grid";
-import { SectionHeading } from "@/components/home/section-heading";
-import { ProductGrid } from "@/components/product/product-grid";
 import { Marquee } from "@/components/motion/marquee";
-import { getBestSellers, getNewArrivals, getCollectionBySlug } from "@/lib/data";
+import { getNewArrivals } from "@/lib/data";
 import { CAMPAIGN, INDEX_ROWS } from "@/lib/brand/assets";
 
 export default async function HomePage() {
-  const [bestSellers, newArrivals, featured] = await Promise.all([
-    getBestSellers(4),
-    getNewArrivals(8),
-    getCollectionBySlug("identity"),
-  ]);
+  const newArrivals = await getNewArrivals(6);
 
   return (
     <>
+      {/* Cinematic cover */}
       <HeroEditorial />
 
       <Marquee
@@ -29,16 +25,16 @@ export default async function HomePage() {
         duration={28}
       />
 
+      {/* Brand philosophy */}
       <Manifesto />
 
-      {/* Best sellers */}
-      <section className="container-edge py-16 md:py-24">
-        <SectionHeading code="[ BEST SELLERS ]" title="The first favourites" link="/collections/new-arrivals" className="mb-12" />
-        <ProductGrid products={bestSellers} priorityCount={4} />
-      </section>
+      {/* The three series — editorial navigator */}
+      <SeriesIndex />
 
-      {featured && <FeaturedCollection collection={featured} />}
+      {/* The drop — art-directed product spread */}
+      <EditorialDrop products={newArrivals} />
 
+      {/* Behind the campaign — full-bleed statement */}
       <CampaignEditorial
         image={CAMPAIGN.src}
         alt={CAMPAIGN.alt}
@@ -48,18 +44,14 @@ export default async function HomePage() {
         focus={CAMPAIGN.focus}
       />
 
-      {/* New arrivals */}
-      <section className="container-edge py-16 md:py-24">
-        <SectionHeading code="[ THE DROP ]" title="Fresh out the lab" link="/collections/new-arrivals" className="mb-12" />
-        <ProductGrid products={newArrivals} />
-      </section>
-
-      <InteractiveGallery rows={INDEX_ROWS} />
-
+      {/* Origin — routes into the exhibition */}
       <BehindBrand />
 
-      <Newsletter />
+      {/* Interactive index gallery */}
+      <InteractiveGallery rows={INDEX_ROWS} />
 
+      {/* Community + newsletter */}
+      <Newsletter />
       <InstagramGrid />
     </>
   );
