@@ -12,14 +12,14 @@ export default async function AdminCustomers() {
 
       {customers.length === 0 ? (
         <div className="border border-smoke bg-ink-soft p-10 text-center">
-          <p className="text-mono text-xs uppercase tracking-[0.25em] text-ash">No customers yet</p>
+          <p className="text-mono text-xs uppercase tracking-[0.15em] text-ash">No customers yet</p>
           <p className="mt-3 text-sm text-fog">Accounts created at the storefront login appear here.</p>
         </div>
       ) : (
         <div className="overflow-x-auto border border-smoke bg-ink-soft">
           <table className="w-full min-w-[560px] border-collapse text-left text-sm">
             <thead>
-              <tr className="border-b border-smoke text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
+              <tr className="border-b border-smoke text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash">
                 <th className="px-4 py-3 font-normal">Name</th>
                 <th className="px-4 py-3 font-normal">Email</th>
                 <th className="px-4 py-3 font-normal">Joined</th>

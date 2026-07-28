@@ -25,7 +25,7 @@ export default async function AdminSettings() {
 
       {session && (
         <div className="mb-8 rounded-2xl border border-smoke bg-ink-soft p-6">
-          <h2 className="mb-6 text-mono text-xs uppercase tracking-[0.25em] text-bone">My profile</h2>
+          <h2 className="mb-6 text-mono text-xs uppercase tracking-[0.15em] text-bone">My profile</h2>
           <ProfileForm name={session.name} email={session.email} />
         </div>
       )}

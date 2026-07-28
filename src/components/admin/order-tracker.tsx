@@ -60,7 +60,7 @@ export function OrderTracker({
       {/* header */}
       <div className="relative z-10 mb-5 flex items-center justify-between">
         <div>
-          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-ash">Tracking</p>
+          <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">Tracking</p>
           <p
             className="mt-1 text-sm font-bold tracking-wide"
             style={{ color: RED, textShadow: "0 0 16px rgba(224,52,42,0.4)" }}
@@ -69,7 +69,7 @@ export function OrderTracker({
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-ash">
+          <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">
             {isException ? "Status" : `Stage ${Math.max(current + 1, 0)} of ${ORDER_STAGES.length}`}
           </p>
           <p className="mt-1 text-sm text-bone">{STATE_META[state].label}</p>
@@ -96,7 +96,7 @@ export function OrderTracker({
           )}
           <div>
             <p className="text-sm text-bone">{STATE_META[state].label}</p>
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-ash">Needs attention</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.13em] text-ash">Needs attention</p>
           </div>
         </div>
       ) : (
@@ -156,13 +156,13 @@ export function OrderTracker({
       {/* event log */}
       {history && history.length > 0 && (
         <div className="relative z-10 mt-6 border-t border-smoke/60 pt-4">
-          <p className="mb-3 text-[0.6rem] uppercase tracking-[0.25em] text-ash">Updates</p>
+          <p className="mb-3 text-[0.7rem] uppercase tracking-[0.15em] text-ash">Updates</p>
           <ul className="space-y-2">
             {[...history].reverse().map((e, i) => (
               <li key={i} className="flex items-center gap-3 text-xs">
                 <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATE_META[e.state].dot}`} />
                 <span className="text-bone-dim">{STATE_META[e.state].label}</span>
-                <span className="ml-auto text-[0.6rem] uppercase tracking-[0.15em] text-ash">
+                <span className="ml-auto text-[0.7rem] uppercase tracking-[0.15em] text-ash">
                   {new Date(e.at).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "short",

@@ -49,15 +49,15 @@ export function HealthCards({ cards }: { cards: HealthCard[] }) {
           >
             <div className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full ${GLOW[c.key]} opacity-0 blur-2xl transition-opacity group-hover:opacity-100`} />
             <div className="flex items-start justify-between">
-              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-ash">{c.label}</p>
+              <p className="text-[0.7rem] uppercase tracking-[0.13em] text-ash">{c.label}</p>
               <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${TINTS[c.key]}`}>
                 <Icon className="h-4 w-4" />
               </div>
             </div>
-            <p className="mt-4 font-display text-3xl text-bone">
+            <p className="mt-4 figure text-3xl text-bone">
               <CountUp value={c.value} format={c.money ? (n) => formatPrice(n) : undefined} />
             </p>
-            <p className="mt-1 text-mono text-[0.6rem] uppercase tracking-[0.15em] text-fog">{c.sub}</p>
+            <p className="mt-1 text-mono text-[0.7rem] uppercase tracking-[0.15em] text-fog">{c.sub}</p>
           </motion.div>
         );
       })}

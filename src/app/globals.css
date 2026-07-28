@@ -63,6 +63,17 @@
   --color-acid-dim: #a81f16;
 }
 
+/* Admin is a dense data UI, not editorial — nudge the muted greys darker so
+   small labels/hints stay legible. Scoped to the admin so the storefront's
+   softer palette is untouched. */
+:root[data-theme="light"] .admin-scope {
+  --color-ash: #6b665c;
+  --color-fog: #47433d;
+}
+.admin-scope {
+  --color-ash: #9a948a;
+}
+
 /* In light mode the fixed header always gets a frosted light surface so its
    (now dark) nav text stays readable over the dark-toned hero photo. */
 :root[data-theme="light"] .site-header {
@@ -131,6 +142,17 @@ body {
   font-family: var(--font-mono);
   font-weight: 400;
   letter-spacing: 0.02em;
+}
+
+/* Legible tabular figures for dashboards/metrics. The Syne display face is
+   built for editorial headlines, not numbers — data uses clean Inter with
+   tabular numerals so columns line up and values read at a glance. */
+.figure {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
 }
 
 .eyebrow {

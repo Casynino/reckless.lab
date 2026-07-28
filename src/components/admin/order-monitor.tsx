@@ -85,8 +85,8 @@ export function OrderMonitor({ orders }: { orders: Order[] }) {
             {c.ping && (
               <span className="absolute right-2 top-2 h-1.5 w-1.5 animate-ping rounded-full bg-current opacity-70" />
             )}
-            <p className={cn("font-display text-2xl", c.color)}>{c.value}</p>
-            <p className="mt-1 text-[0.6rem] uppercase tracking-[0.2em] text-ash">{c.label}</p>
+            <p className={cn("figure text-2xl", c.color)}>{c.value}</p>
+            <p className="mt-1 text-[0.7rem] uppercase tracking-[0.13em] text-ash">{c.label}</p>
           </button>
         ))}
       </div>
@@ -114,7 +114,7 @@ export function OrderMonitor({ orders }: { orders: Order[] }) {
             key={f}
             onClick={() => setFilter(f)}
             className={cn(
-              "border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.15em] transition-colors",
+              "border px-3 py-1.5 text-[0.7rem] uppercase tracking-[0.15em] transition-colors",
               filter === f ? "border-bone/40 bg-carbon text-bone" : "border-smoke text-ash hover:text-bone",
             )}
           >
@@ -151,7 +151,7 @@ function OrderRow({ order, open, onToggle }: { order: Order; open: boolean; onTo
       <button onClick={onToggle} className="flex w-full items-start justify-between gap-4 p-4 text-left">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium uppercase tracking-wide text-bone">{order.customerName}</p>
-          <p className="mt-0.5 truncate text-[0.6rem] uppercase tracking-[0.15em] text-ash">
+          <p className="mt-0.5 truncate text-[0.7rem] uppercase tracking-[0.15em] text-ash">
             {order.reference} · {order.tracking} · {date}
           </p>
           <StageMini state={order.state} />
@@ -182,7 +182,7 @@ function OrderRow({ order, open, onToggle }: { order: Order; open: boolean; onTo
               <div className="flex flex-col gap-5">
                 {/* Customer + address */}
                 <div className="border border-smoke bg-ink p-4 text-sm">
-                  <p className="mb-2 text-[0.6rem] uppercase tracking-[0.25em] text-ash">Customer</p>
+                  <p className="mb-2 text-[0.7rem] uppercase tracking-[0.15em] text-ash">Customer</p>
                   <p className="text-bone">{order.customerName}</p>
                   <p className="text-fog">{order.customerEmail}</p>
                   <p className="mt-1 flex items-center gap-2 text-fog">
@@ -195,7 +195,7 @@ function OrderRow({ order, open, onToggle }: { order: Order; open: boolean; onTo
 
                 {/* Items */}
                 <div className="border border-smoke bg-ink p-4">
-                  <p className="mb-3 text-[0.6rem] uppercase tracking-[0.25em] text-ash">Items</p>
+                  <p className="mb-3 text-[0.7rem] uppercase tracking-[0.15em] text-ash">Items</p>
                   <ul className="space-y-2 text-sm">
                     {order.lines.map((l) => (
                       <li key={l.sku} className="flex items-center justify-between gap-2">
@@ -208,7 +208,7 @@ function OrderRow({ order, open, onToggle }: { order: Order; open: boolean; onTo
                   </ul>
                   <div className="mt-3 flex items-center justify-between border-t border-smoke pt-3 text-sm">
                     <span className="text-ash">Total ({order.shipping === 0 ? "free ship" : formatPrice(order.shipping) + " ship"})</span>
-                    <span className="font-display text-lg text-bone">{formatPrice(order.total)}</span>
+                    <span className="figure text-lg text-bone">{formatPrice(order.total)}</span>
                   </div>
                 </div>
 
@@ -238,23 +238,23 @@ function QuickAction({ order }: { order: Order }) {
 
   return (
     <div className="border border-smoke bg-ink p-4">
-      <p className="mb-3 text-[0.6rem] uppercase tracking-[0.25em] text-ash">Actions</p>
+      <p className="mb-3 text-[0.7rem] uppercase tracking-[0.15em] text-ash">Actions</p>
       <div className="flex flex-wrap gap-2">
         {next && (
           <button
             disabled={pending}
             onClick={() => advance(next.key)}
-            className="bg-bone px-4 py-2.5 text-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-ink transition-colors hover:bg-acid hover:text-bone disabled:opacity-50"
+            className="bg-bone px-4 py-2.5 text-mono text-[0.65rem] font-bold uppercase tracking-[0.13em] text-ink transition-colors hover:bg-acid hover:text-bone disabled:opacity-50"
           >
             {pending ? "…" : `→ ${next.label}`}
           </button>
         )}
-        {isEnd && <span className="text-mono text-[0.65rem] uppercase tracking-[0.2em] text-emerald-400">✳ Completed</span>}
+        {isEnd && <span className="text-mono text-[0.65rem] uppercase tracking-[0.13em] text-emerald-400">✳ Completed</span>}
         {!isIssue && !isEnd && (
           <button
             disabled={pending}
             onClick={() => advance("issue")}
-            className="flex items-center gap-1.5 border border-acid/40 px-4 py-2.5 text-mono text-[0.65rem] uppercase tracking-[0.2em] text-acid transition-colors hover:bg-acid/10 disabled:opacity-50"
+            className="flex items-center gap-1.5 border border-acid/40 px-4 py-2.5 text-mono text-[0.65rem] uppercase tracking-[0.13em] text-acid transition-colors hover:bg-acid/10 disabled:opacity-50"
           >
             <AlertTriangle className="h-3.5 w-3.5" /> Flag issue
           </button>
@@ -263,7 +263,7 @@ function QuickAction({ order }: { order: Order }) {
           <button
             disabled={pending}
             onClick={() => advance("new")}
-            className="border border-smoke px-4 py-2.5 text-mono text-[0.65rem] uppercase tracking-[0.2em] text-bone hover:border-bone disabled:opacity-50"
+            className="border border-smoke px-4 py-2.5 text-mono text-[0.65rem] uppercase tracking-[0.13em] text-bone hover:border-bone disabled:opacity-50"
           >
             Reopen
           </button>

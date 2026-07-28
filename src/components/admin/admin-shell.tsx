@@ -61,7 +61,7 @@ export function AdminShell({
     <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6">
       {GROUPS.map((g, gi) => (
         <div key={gi}>
-          {g.title && <p className="mb-2 px-3 text-mono text-[0.55rem] uppercase tracking-[0.3em] text-ash/70">{g.title}</p>}
+          {g.title && <p className="mb-2 px-3 text-mono text-[0.55rem] uppercase tracking-[0.16em] text-ash/70">{g.title}</p>}
           <div className="flex flex-col gap-0.5">
             {g.items.map((item) => {
               const active = isActive(item.href);
@@ -87,12 +87,12 @@ export function AdminShell({
   );
 
   return (
-    <div className="flex min-h-screen bg-ink text-bone">
+    <div className="admin-scope flex min-h-screen bg-ink text-bone">
       {/* Sidebar */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-smoke bg-ink-soft md:flex">
         <Link href="/admin" className="flex items-center gap-2 border-b border-smoke px-5 py-5 text-bone">
           <Wordmark className="text-sm" />
-          <span className="rounded bg-acid/15 px-1.5 py-0.5 text-mono text-[0.5rem] uppercase tracking-[0.2em] text-acid">HQ</span>
+          <span className="rounded bg-acid/15 px-1.5 py-0.5 text-mono text-[0.5rem] uppercase tracking-[0.13em] text-acid">HQ</span>
         </Link>
 
         {NavList}
@@ -103,11 +103,11 @@ export function AdminShell({
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-acid/15 font-display text-sm text-acid">{initial}</div>
             <div className="min-w-0">
               <p className="truncate text-sm text-bone">{adminName}</p>
-              {adminEmail && <p className="truncate text-[0.6rem] uppercase tracking-[0.1em] text-ash">{adminEmail}</p>}
+              {adminEmail && <p className="truncate text-[0.7rem] uppercase tracking-[0.1em] text-ash">{adminEmail}</p>}
             </div>
           </div>
           <form action={logoutAction}>
-            <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-mono text-[0.65rem] uppercase tracking-[0.2em] text-ash transition-colors hover:bg-carbon/60 hover:text-acid">
+            <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-mono text-[0.65rem] uppercase tracking-[0.13em] text-ash transition-colors hover:bg-carbon/60 hover:text-acid">
               <LogOut className="h-3.5 w-3.5" /> Sign out
             </button>
           </form>
@@ -118,13 +118,13 @@ export function AdminShell({
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top bar */}
         <div className="sticky top-0 z-20 flex items-center justify-between border-b border-smoke bg-ink/80 px-5 py-3.5 backdrop-blur-xl md:px-8">
-          <span className="text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Operational HQ</span>
+          <span className="text-mono text-[0.7rem] uppercase tracking-[0.16em] text-ash">Operational HQ</span>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link
               href="/"
               target="_blank"
-              className="flex items-center gap-1.5 rounded-full border border-smoke px-3 py-1.5 text-mono text-[0.6rem] uppercase tracking-[0.15em] text-bone-dim transition-colors hover:border-ash/50 hover:text-bone"
+              className="flex items-center gap-1.5 rounded-full border border-smoke px-3 py-1.5 text-mono text-[0.7rem] uppercase tracking-[0.15em] text-bone-dim transition-colors hover:border-ash/50 hover:text-bone"
             >
               <ExternalLink className="h-3 w-3" /> Main site
             </Link>
@@ -142,7 +142,7 @@ export function AdminShell({
               key={item.href}
               href={item.href}
               className={cn(
-                "whitespace-nowrap rounded-full px-3 py-1.5 text-mono text-[0.6rem] uppercase tracking-[0.15em]",
+                "whitespace-nowrap rounded-full px-3 py-1.5 text-mono text-[0.7rem] uppercase tracking-[0.15em]",
                 isActive(item.href) ? "bg-acid/10 text-acid" : "text-fog",
               )}
             >

@@ -8,7 +8,7 @@ export function StageMini({ state }: { state: OrderState }) {
     return (
       <div className="mt-2 flex items-center gap-1.5">
         <span className="h-1.5 w-1.5 rounded-full" style={{ background: RED, boxShadow: "0 0 6px rgba(224,52,42,0.5)" }} />
-        <span className="text-[0.55rem] uppercase tracking-[0.2em] text-ash">{state}</span>
+        <span className="text-[0.55rem] uppercase tracking-[0.13em] text-ash">{state}</span>
       </div>
     );
   }

@@ -73,8 +73,8 @@ export function InventoryView({ products }: { products: InvProduct[] }) {
             <div className={cn("flex h-7 w-7 items-center justify-center", c.tint)}>
               <c.icon className="h-3.5 w-3.5" />
             </div>
-            <p className="mt-3 font-display text-xl text-bone">{counts[c.id]}</p>
-            <p className="text-[0.6rem] uppercase tracking-[0.2em] text-ash">{c.label}</p>
+            <p className="mt-3 figure text-xl text-bone">{counts[c.id]}</p>
+            <p className="text-[0.7rem] uppercase tracking-[0.13em] text-ash">{c.label}</p>
           </button>
         ))}
       </div>
@@ -86,7 +86,7 @@ export function InventoryView({ products }: { products: InvProduct[] }) {
             key={f}
             onClick={() => setFilter(f)}
             className={cn(
-              "rounded-full border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.15em] transition-colors",
+              "rounded-full border px-3 py-1.5 text-[0.7rem] uppercase tracking-[0.15em] transition-colors",
               filter === f ? "border-bone/40 bg-carbon text-bone" : "border-smoke text-ash hover:text-bone",
             )}
           >
@@ -106,7 +106,7 @@ export function InventoryView({ products }: { products: InvProduct[] }) {
 
       {/* Table */}
       <div className="border border-smoke bg-ink-soft">
-        <div className="grid grid-cols-12 border-b border-smoke px-4 py-3 text-[0.6rem] uppercase tracking-[0.2em] text-ash">
+        <div className="grid grid-cols-12 border-b border-smoke px-4 py-3 text-[0.7rem] uppercase tracking-[0.13em] text-ash">
           <span className="col-span-6">Product</span>
           <span className="col-span-2 text-right">Price</span>
           <span className="col-span-2 text-right">Sold</span>
@@ -146,7 +146,7 @@ function InventoryRow({ product, level }: { product: InvProduct; level: Level })
           </div>
           <div>
             <p className="text-sm text-bone">{product.name}</p>
-            <p className="text-[0.6rem] uppercase tracking-[0.15em] text-ash">{product.colorway}</p>
+            <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">{product.colorway}</p>
           </div>
         </div>
         <span className="col-span-2 text-right text-sm text-emerald-400">{formatPrice(product.price)}</span>
@@ -171,7 +171,7 @@ function InventoryRow({ product, level }: { product: InvProduct; level: Level })
             <div className="flex flex-wrap items-end gap-4 border-t border-smoke/50 bg-ink px-4 py-4">
               {product.sizes.map((s) => (
                 <label key={s.sku} className="flex flex-col gap-1">
-                  <span className="text-[0.6rem] uppercase tracking-[0.2em] text-ash">{s.size}</span>
+                  <span className="text-[0.7rem] uppercase tracking-[0.13em] text-ash">{s.size}</span>
                   <input
                     type="number"
                     min={0}
@@ -184,7 +184,7 @@ function InventoryRow({ product, level }: { product: InvProduct; level: Level })
               <button
                 onClick={save}
                 disabled={pending}
-                className="ml-auto bg-bone px-5 py-2 text-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-ink transition-colors hover:bg-acid hover:text-bone disabled:opacity-50"
+                className="ml-auto bg-bone px-5 py-2 text-mono text-[0.65rem] font-bold uppercase tracking-[0.13em] text-ink transition-colors hover:bg-acid hover:text-bone disabled:opacity-50"
               >
                 {pending ? "Saving…" : saved ? "✳ Saved" : "Save stock"}
               </button>

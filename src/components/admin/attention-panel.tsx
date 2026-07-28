@@ -41,12 +41,12 @@ export function AttentionPanel({ items }: { items: AttnItem[] }) {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              "flex items-center gap-2 rounded-full border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.15em] transition-colors",
+              "flex items-center gap-2 rounded-full border px-3 py-1.5 text-[0.7rem] uppercase tracking-[0.15em] transition-colors",
               tab === t.id ? "border-acid/50 bg-acid/10 text-acid" : "border-smoke text-ash hover:text-bone",
             )}
           >
             {t.label}
-            <span className="text-[0.6rem]">{t.count}</span>
+            <span className="text-[0.7rem]">{t.count}</span>
           </button>
         ))}
       </div>

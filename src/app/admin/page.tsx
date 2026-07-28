@@ -82,21 +82,21 @@ export default async function AdminOverview() {
       <DashboardHero name={session?.name ?? "Admin"} />
 
       <section>
-        <p className="mb-4 text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Business health · right now</p>
+        <p className="mb-4 text-mono text-[0.7rem] uppercase tracking-[0.16em] text-ash">Business health · right now</p>
         <HealthCards cards={health} />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <section>
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Needs your attention</p>
-            <Link href="/admin/orders" className="text-mono text-[0.6rem] uppercase tracking-[0.2em] text-acid">Review all →</Link>
+            <p className="text-mono text-[0.7rem] uppercase tracking-[0.16em] text-ash">Needs your attention</p>
+            <Link href="/admin/orders" className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-acid">Review all →</Link>
           </div>
           <AttentionPanel items={attn} />
         </section>
 
         <section>
-          <p className="mb-4 text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Order status</p>
+          <p className="mb-4 text-mono text-[0.7rem] uppercase tracking-[0.16em] text-ash">Order status</p>
           <Panel title="This drop">
             <ul className="space-y-3">
               {a.orders.byStatus.map((s) => {
@@ -119,12 +119,12 @@ export default async function AdminOverview() {
       </div>
 
       <section>
-        <p className="mb-4 text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Quick actions</p>
+        <p className="mb-4 text-mono text-[0.7rem] uppercase tracking-[0.16em] text-ash">Quick actions</p>
         <QuickActions />
       </section>
 
       <section>
-        <p className="mb-4 text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Revenue &amp; collections · this month</p>
+        <p className="mb-4 text-mono text-[0.7rem] uppercase tracking-[0.16em] text-ash">Revenue &amp; collections · this month</p>
         <RevenueSplit data={revenueSplit} />
       </section>
 
@@ -132,7 +132,7 @@ export default async function AdminOverview() {
         <Reveal>
           <Panel
             title="Recent orders"
-            action={<Link href="/admin/orders" className="text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash hover:text-bone">Order monitor →</Link>}
+            action={<Link href="/admin/orders" className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash hover:text-bone">Order monitor →</Link>}
           >
             <ul className="divide-y divide-smoke/60">
               {recent.map((o) => (
@@ -140,7 +140,7 @@ export default async function AdminOverview() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm uppercase tracking-wide text-bone">{o.customerName}</p>
-                      <p className="text-[0.6rem] uppercase tracking-[0.15em] text-ash">{o.reference}</p>
+                      <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">{o.reference}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
                       <span className={cn("border px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.1em]", STATE_META[o.state].tone)}>{STATE_META[o.state].label}</span>
@@ -157,7 +157,7 @@ export default async function AdminOverview() {
         <Reveal delay={0.1}>
           <Panel
             title="Top customers"
-            action={<Link href="/admin/customers" className="text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash hover:text-bone">All →</Link>}
+            action={<Link href="/admin/customers" className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash hover:text-bone">All →</Link>}
           >
             {a.customers.topSpenders.length === 0 ? (
               <p className="text-sm text-fog">No paid orders yet.</p>

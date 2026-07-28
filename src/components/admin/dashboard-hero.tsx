@@ -39,7 +39,7 @@ export function DashboardHero({ name }: { name: string }) {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/50 via-transparent to-ink/10" />
 
       <div className="relative z-10" style={{ color: "var(--color-onphoto)" }}>
-        <div className="flex items-center gap-3 text-mono text-[0.65rem] uppercase tracking-[0.25em] opacity-85">
+        <div className="flex items-center gap-3 text-mono text-[0.65rem] uppercase tracking-[0.15em] opacity-85">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
           <span>{dateLabel}</span>
           <span className="rounded-full bg-black/25 px-2 py-0.5">Admin</span>

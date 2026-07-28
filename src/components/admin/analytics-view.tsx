@@ -67,9 +67,9 @@ function KpiCard({
         </div>
         {spark && <Spark data={spark} color={up ? "#34d399" : "#fb7185"} />}
       </div>
-      <p className="font-display text-2xl text-bone">{value}</p>
+      <p className="figure text-2xl text-bone">{value}</p>
       <div className="flex items-center justify-between">
-        <p className="text-[0.6rem] uppercase tracking-[0.2em] text-ash">{label}</p>
+        <p className="text-[0.7rem] uppercase tracking-[0.13em] text-ash">{label}</p>
         {typeof growth === "number" && (
           <span className={cn("flex items-center gap-1 text-mono text-[0.65rem] font-semibold", up ? "text-emerald-400" : "text-rose-400")}>
             {up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -78,7 +78,7 @@ function KpiCard({
           </span>
         )}
       </div>
-      {sub && <p className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-fog">{sub}</p>}
+      {sub && <p className="text-mono text-[0.7rem] uppercase tracking-[0.15em] text-fog">{sub}</p>}
     </div>
   );
 }
@@ -96,7 +96,7 @@ export function AnalyticsView({ data }: { data: Analytics }) {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              "flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2.5 text-[0.65rem] uppercase tracking-[0.2em] transition-colors",
+              "flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2.5 text-[0.65rem] uppercase tracking-[0.13em] transition-colors",
               tab === t.id ? "border-acid text-acid" : "border-transparent text-ash hover:text-bone",
             )}
           >
@@ -119,12 +119,12 @@ export function AnalyticsView({ data }: { data: Analytics }) {
             <div className="border border-smoke bg-ink-soft p-5 lg:col-span-2">
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <p className="text-[0.6rem] uppercase tracking-[0.25em] text-ash">Revenue Trend</p>
+                  <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">Revenue Trend</p>
                   <p className="mt-1 text-sm text-bone">Last 30 days</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[0.6rem] uppercase tracking-[0.25em] text-ash">This month</p>
-                  <p className="mt-1 font-display text-lg text-emerald-400">{formatPrice(data.revenue.thisMonth)}</p>
+                  <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">This month</p>
+                  <p className="mt-1 figure text-lg text-emerald-400">{formatPrice(data.revenue.thisMonth)}</p>
                 </div>
               </div>
               <LineChart data={data.revenue.daily} />
@@ -206,7 +206,7 @@ export function AnalyticsView({ data }: { data: Analytics }) {
             <div>
               <div className="mb-3 flex items-center gap-2">
                 <Zap className="h-4 w-4 text-amber-400" />
-                <p className="text-mono text-xs uppercase tracking-[0.25em] text-bone">Recommended Actions</p>
+                <p className="text-mono text-xs uppercase tracking-[0.15em] text-bone">Recommended Actions</p>
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
                 {data.insights.map((ins, i) => (
@@ -227,7 +227,7 @@ export function AnalyticsView({ data }: { data: Analytics }) {
             <KpiCard label="All Time" value={formatPrice(data.revenue.total)} icon={DollarSign} tint="bg-emerald-500/15 text-emerald-400" />
           </div>
           <div className="border border-smoke bg-ink-soft p-5">
-            <p className="mb-5 text-[0.6rem] uppercase tracking-[0.25em] text-ash">Revenue · last 30 days</p>
+            <p className="mb-5 text-[0.7rem] uppercase tracking-[0.15em] text-ash">Revenue · last 30 days</p>
             <LineChart data={data.revenue.daily} />
           </div>
         </div>
@@ -320,7 +320,7 @@ function Insight({ type, text, action }: { type: keyof typeof INSIGHT_CFG; text:
       <cfg.icon className="mt-0.5 h-4 w-4 shrink-0" />
       <div>
         <p className="text-sm text-bone">{text}</p>
-        <p className="mt-0.5 text-[0.6rem] uppercase tracking-[0.15em] opacity-80">→ {action}</p>
+        <p className="mt-0.5 text-[0.7rem] uppercase tracking-[0.15em] opacity-80">→ {action}</p>
       </div>
     </div>
   );

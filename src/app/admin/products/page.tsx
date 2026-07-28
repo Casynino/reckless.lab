@@ -17,7 +17,7 @@ export default async function AdminProducts() {
       <div className="overflow-x-auto border border-smoke bg-ink-soft">
         <table className="w-full min-w-[720px] border-collapse text-left text-sm">
           <thead>
-            <tr className="border-b border-smoke text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
+            <tr className="border-b border-smoke text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash">
               <th className="px-4 py-3 font-normal">Piece</th>
               <th className="px-4 py-3 font-normal">Colour</th>
               <th className="px-4 py-3 font-normal">Price</th>
@@ -40,7 +40,7 @@ export default async function AdminProducts() {
                       </div>
                       <div>
                         <p className="font-medium text-bone">{p.name}</p>
-                        <p className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">
+                        <p className="text-mono text-[0.7rem] uppercase tracking-[0.15em] text-ash">
                           {p.variants[0]?.sku.split("-").slice(0, -1).join("-")}
                         </p>
                       </div>
@@ -66,7 +66,7 @@ export default async function AdminProducts() {
                     <Link
                       href={`/products/${p.slug}`}
                       target="_blank"
-                      className="text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash hover:text-acid"
+                      className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash hover:text-acid"
                     >
                       View ↗
                     </Link>
@@ -78,7 +78,7 @@ export default async function AdminProducts() {
         </table>
       </div>
 
-      <p className="mt-5 max-w-2xl text-mono text-[0.6rem] uppercase leading-relaxed tracking-[0.15em] text-ash">
+      <p className="mt-5 max-w-2xl text-mono text-[0.7rem] uppercase leading-relaxed tracking-[0.15em] text-ash">
         Read-only view for now — the catalog is served from typed files. Editing, image uploads and stock
         adjustments land when the catalog moves to the database (the data layer is already abstracted for it).
       </p>

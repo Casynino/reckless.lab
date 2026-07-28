@@ -29,7 +29,7 @@ export function AdminInbox({ conversations }: { conversations: Conversation[] })
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-3 rounded-2xl border border-smoke bg-ink-soft text-center">
         <MessageSquare className="h-8 w-8 text-ash" />
-        <p className="text-mono text-xs uppercase tracking-[0.25em] text-ash">No conversations yet</p>
+        <p className="text-mono text-xs uppercase tracking-[0.15em] text-ash">No conversations yet</p>
         <p className="max-w-xs text-sm text-fog">When a customer messages support, their thread appears here.</p>
       </div>
     );
@@ -77,7 +77,7 @@ export function AdminInbox({ conversations }: { conversations: Conversation[] })
             <div className="flex items-center justify-between border-b border-smoke px-4 py-3">
               <div>
                 <p className="text-sm text-bone">{selected.customerName}</p>
-                <p className="text-[0.6rem] uppercase tracking-[0.15em] text-ash">{selected.customerEmail}</p>
+                <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">{selected.customerEmail}</p>
               </div>
               {/* Mobile selector */}
               <select

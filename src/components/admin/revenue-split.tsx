@@ -26,7 +26,7 @@ export function RevenueSplit({ data }: { data: RevenueSplitData }) {
           <div className="relative shrink-0">
             <Donut segments={data.series.map((s, i) => ({ name: s.name, pct: s.pct, color: CAT_COLORS[i % CAT_COLORS.length] }))} />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-display text-2xl text-bone">{lead ? `${lead.pct}%` : "—"}</span>
+              <span className="figure text-2xl text-bone">{lead ? `${lead.pct}%` : "—"}</span>
               <span className="max-w-[70px] text-center text-[0.5rem] uppercase leading-tight tracking-[0.15em] text-ash">
                 {lead ? lead.name.replace(/[‘’']/g, "") : "no sales"}
               </span>
@@ -39,8 +39,8 @@ export function RevenueSplit({ data }: { data: RevenueSplitData }) {
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: CAT_COLORS[i % CAT_COLORS.length] }} />
                   <span className="text-sm text-bone-dim">{s.name}</span>
                 </div>
-                <p className="mt-1 pl-4 font-display text-xl text-bone">{formatPrice(s.revenue)}</p>
-                <p className="pl-4 text-[0.6rem] uppercase tracking-[0.15em] text-ash">{s.pct}% of revenue</p>
+                <p className="mt-1 pl-4 figure text-xl text-bone">{formatPrice(s.revenue)}</p>
+                <p className="pl-4 text-[0.7rem] uppercase tracking-[0.15em] text-ash">{s.pct}% of revenue</p>
               </li>
             ))}
             {data.series.length === 0 && <li className="text-sm text-fog">No sales yet.</li>}
@@ -71,8 +71,8 @@ export function RevenueSplit({ data }: { data: RevenueSplitData }) {
 function Metric({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div>
-      <p className="text-[0.6rem] uppercase tracking-[0.15em] text-ash">{label}</p>
-      <p className={`mt-1 font-display text-2xl ${color}`}>{value}</p>
+      <p className="text-[0.7rem] uppercase tracking-[0.15em] text-ash">{label}</p>
+      <p className={`mt-1 figure text-2xl ${color}`}>{value}</p>
     </div>
   );
 }
@@ -80,7 +80,7 @@ function Metric({ label, value, color }: { label: string; value: string; color: 
 function Pill({ n, label, color }: { n: number; label: string; color: string }) {
   return (
     <div>
-      <p className={`font-display text-xl ${color}`}>{n}</p>
+      <p className={`figure text-xl ${color}`}>{n}</p>
       <p className="text-[0.55rem] uppercase tracking-[0.15em] text-ash">{label}</p>
     </div>
   );
