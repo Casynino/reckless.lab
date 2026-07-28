@@ -10,7 +10,6 @@ export const primaryNav: { label: string; href: string; meta: string }[] = [
 ];
 
 export const secondaryNav: { label: string; href: string }[] = [
-  { label: "The Lab", href: "/about" },
   { label: "Account", href: "/account" },
   { label: "Wishlist", href: "/wishlist" },
   { label: "Support", href: "/support" },

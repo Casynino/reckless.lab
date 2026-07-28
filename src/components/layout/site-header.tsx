@@ -98,6 +98,12 @@ export function SiteHeader() {
             >
               Shop
             </Link>
+            <Link
+              href="/about"
+              className="link-underline hidden text-mono text-[0.7rem] uppercase tracking-[0.25em] text-bone md:inline"
+            >
+              The Lab
+            </Link>
             <ThemeToggle className="hidden md:flex" />
             <AccountNav />
             <Link
@@ -162,6 +168,24 @@ export function SiteHeader() {
                     </Link>
                   </motion.div>
                 ))}
+                <motion.div
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.15 + primaryNav.length * 0.05, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <Link
+                    href="/about"
+                    onClick={() => setMenuOpen(false)}
+                    className="group flex items-baseline justify-between py-3 md:py-4"
+                  >
+                    <span className="font-display text-4xl text-acid transition-opacity duration-300 group-hover:opacity-80 md:text-7xl">
+                      The Lab
+                    </span>
+                    <span className="text-mono text-[0.65rem] uppercase tracking-[0.3em] text-ash">
+                      OUR STORY
+                    </span>
+                  </Link>
+                </motion.div>
               </nav>
             </div>
 
