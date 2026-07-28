@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/session-cookies";
 import { updateOrderState, createOrder } from "./store";
+import { incrementCouponUsage } from "@/lib/promo/store";
 import type { OrderLine, OrderState } from "./types";
 
 /** Admin: advance/override an order's state. */
@@ -34,11 +35,17 @@ export async function placeOrderAction(input: {
   lines: OrderLine[];
   subtotal: number;
   shipping: number;
+  discount?: number;
+  couponCode?: string;
   total: number;
 }) {
   if (!input.lines?.length) return { error: "Empty order." };
   const session = await getSession();
-  const order = await createOrder(input, { userId: session?.sub });
+  const order = await createOrder(
+    { ...input, discount: input.discount ?? 0, couponCode: input.couponCode },
+    { userId: session?.sub },
+  );
+  if (input.couponCode) await incrementCouponUsage(input.couponCode);
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
   revalidatePath("/account");

@@ -55,6 +55,8 @@ function toOrder(o: OrderRow): Order {
     ),
     subtotal: o.subtotal,
     shipping: o.shipping,
+    discount: o.discount,
+    couponCode: o.couponCode ?? undefined,
     total: o.total,
     state: toAppState(o.state),
     history: o.events.map((e) => ({ state: toAppState(e.state), at: e.at.toISOString() })),
@@ -108,6 +110,8 @@ export async function createOrder(
       postalCode: input.postalCode ?? null,
       subtotal: input.subtotal,
       shipping: input.shipping,
+      discount: input.discount,
+      couponCode: input.couponCode ?? null,
       total: input.total,
       state: "NEW",
       items: {

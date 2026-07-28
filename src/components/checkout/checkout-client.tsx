@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/shop/format";
 import { shippingCountries, getZoneForCountry, shippingCost, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
 import { buildOrderDraft, buildWhatsAppUrl, buildOrderMessage } from "@/lib/shop/whatsapp";
 import { placeOrderAction } from "@/lib/orders/actions";
+import { applyCouponAction } from "@/lib/promo/actions";
 import { shopConfig } from "@/lib/shop/config";
 import type { ShippingAddress } from "@/lib/types";
 import { SmartImage } from "@/components/ui/smart-image";
@@ -45,11 +46,27 @@ export function CheckoutClient() {
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<"idle" | "placing" | "error">("idle");
   const [placed, setPlaced] = useState<Placed | null>(null);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<{ code: string; discount: number; label: string } | null>(null);
+  const [promoErr, setPromoErr] = useState("");
 
   const subtotal = cartSubtotal(lines);
   const zone = getZoneForCountry(form.countryCode);
   const shipping = shippingCost(form.countryCode, subtotal);
-  const total = subtotal + shipping;
+  const discount = Math.min(promo?.discount ?? 0, subtotal + shipping);
+  const total = Math.max(0, subtotal + shipping - discount);
+
+  async function applyPromo() {
+    setPromoErr("");
+    if (!promoInput.trim()) return;
+    const res = await applyCouponAction({ code: promoInput, subtotal, shipping, email: form.email || undefined });
+    if ("error" in res) {
+      setPromo(null);
+      setPromoErr(res.error);
+      return;
+    }
+    setPromo({ code: res.code, discount: res.discount, label: res.label });
+  }
 
   const valid = useMemo(
     () =>
@@ -92,9 +109,11 @@ export function CheckoutClient() {
         image: l.image,
         sku: l.sku,
       })),
-      subtotal: draft.subtotal,
-      shipping: draft.shipping,
-      total: draft.total,
+      subtotal,
+      shipping,
+      discount,
+      couponCode: promo?.code,
+      total,
     }).catch(() => null);
 
     if (!res || "error" in res) {
@@ -268,6 +287,40 @@ export function CheckoutClient() {
                 {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} away from free shipping
               </p>
             )}
+            {discount > 0 && promo && (
+              <Row label={`Promo · ${promo.code}`} value={`− ${formatPrice(discount)}`} accent />
+            )}
+          </div>
+
+          {/* Promo code */}
+          <div className="mt-4 border-t border-smoke pt-4">
+            {promo ? (
+              <div className="flex items-center justify-between">
+                <span className="text-mono text-[0.65rem] uppercase tracking-[0.15em] text-acid">✓ {promo.label} applied</span>
+                <button
+                  onClick={() => { setPromo(null); setPromoInput(""); }}
+                  className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash hover:text-bone"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                  placeholder="Promo code"
+                  className="w-full border-b border-smoke bg-transparent py-2 text-sm uppercase text-bone placeholder:normal-case placeholder:text-ash/60 focus:border-bone focus:outline-none"
+                />
+                <button
+                  onClick={applyPromo}
+                  className="shrink-0 border border-smoke px-4 text-mono text-[0.6rem] uppercase tracking-[0.2em] text-bone-dim transition-colors hover:border-bone hover:text-bone"
+                >
+                  Apply
+                </button>
+              </div>
+            )}
+            {promoErr && <p className="mt-2 text-mono text-[0.6rem] uppercase tracking-[0.15em] text-acid">{promoErr}</p>}
           </div>
 
           <div className="mt-4 flex items-center justify-between border-t border-smoke pt-4">

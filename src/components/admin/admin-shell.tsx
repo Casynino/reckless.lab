@@ -13,6 +13,7 @@ import {
   BarChart2,
   Boxes,
   MessageSquare,
+  Ticket,
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
@@ -29,6 +30,7 @@ const GROUPS: { title: string; items: { label: string; href: string; icon: Lucid
       { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
       { label: "Products", href: "/admin/products", icon: Shirt },
       { label: "Inventory", href: "/admin/inventory", icon: Boxes },
+      { label: "Promotions", href: "/admin/promotions", icon: Ticket },
     ],
   },
   {

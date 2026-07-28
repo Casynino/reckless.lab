@@ -62,6 +62,8 @@ export interface Order {
   lines: OrderLine[];
   subtotal: number;
   shipping: number;
+  discount: number;
+  couponCode?: string;
   total: number;
   state: OrderState;
   history: OrderEvent[];

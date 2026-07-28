@@ -71,6 +71,7 @@ enum StockMovementType {
 enum CouponType {
   PERCENT
   FIXED
+  FREE_SHIPPING
 }
 
 enum PaymentStatus {
@@ -261,6 +262,7 @@ model Order {
   postalCode    String?
   subtotal      Int
   shipping      Int
+  discount      Int          @default(0)
   total         Int
   state         OrderState   @default(NEW)
   items         OrderItem[]
@@ -368,15 +370,19 @@ model Notification {
 
 // ─────────────────────────────── Marketing ───────────────────────────────
 model Coupon {
-  id         String     @id @default(cuid())
-  code       String     @unique
-  type       CouponType @default(PERCENT)
-  value      Int
-  active     Boolean    @default(true)
-  usageLimit Int?
-  usedCount  Int        @default(0)
-  expiresAt  DateTime?
-  createdAt  DateTime   @default(now())
+  id             String     @id @default(cuid())
+  code           String     @unique
+  type           CouponType @default(PERCENT)
+  value          Int
+  description    String?
+  minSubtotal    Int        @default(0)
+  firstOrderOnly Boolean    @default(false)
+  active         Boolean    @default(true)
+  usageLimit     Int?
+  usedCount      Int        @default(0)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime   @default(now())
 }
 
 // ─────────────────────────────── Content ───────────────────────────────

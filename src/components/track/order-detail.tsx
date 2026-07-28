@@ -116,6 +116,9 @@ export function OrderDetail({ order }: { order: Order }) {
         <dl className="mt-6 space-y-2 border-t border-smoke pt-5 text-sm">
           <div className="flex justify-between text-fog"><dt>Subtotal</dt><dd>{formatPrice(order.subtotal)}</dd></div>
           <div className="flex justify-between text-fog"><dt>Shipping — {countryName(order.countryCode)}</dt><dd>{order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</dd></div>
+          {order.discount > 0 && (
+            <div className="flex justify-between text-acid"><dt>Promo{order.couponCode ? ` · ${order.couponCode}` : ""}</dt><dd>− {formatPrice(order.discount)}</dd></div>
+          )}
           <div className="flex justify-between pt-2 text-base text-bone"><dt className="font-medium">Total</dt><dd className="font-medium">{formatPrice(order.total)}</dd></div>
         </dl>
 
