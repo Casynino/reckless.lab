@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Shirt, ShoppingBag, Users, Settings, LogOut, ArrowUpRight } from "lucide-react";
+import { LayoutDashboard, Shirt, ShoppingBag, Users, Settings, LogOut, ArrowUpRight, BarChart2, Boxes } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
-  { label: "Products", href: "/admin/products", icon: Shirt },
   { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart2 },
+  { label: "Products", href: "/admin/products", icon: Shirt },
+  { label: "Inventory", href: "/admin/inventory", icon: Boxes },
   { label: "Customers", href: "/admin/customers", icon: Users },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];

@@ -8,6 +8,7 @@ import { useCart, cartSubtotal } from "@/lib/shop/cart-store";
 import { formatPrice } from "@/lib/shop/format";
 import { shippingCountries, getZoneForCountry, shippingCost, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
 import { buildOrderDraft, buildWhatsAppUrl, buildOrderMessage } from "@/lib/shop/whatsapp";
+import { placeOrderAction } from "@/lib/orders/actions";
 import { shopConfig } from "@/lib/shop/config";
 import type { ShippingAddress } from "@/lib/types";
 import { SmartImage } from "@/components/ui/smart-image";
@@ -64,6 +65,28 @@ export function CheckoutClient() {
       return;
     }
     const order = buildOrderDraft(lines, form, Date.now());
+    // Record the order so it appears in the admin Order Monitor, then hand off
+    // to WhatsApp. Fire-and-forget — never block the WhatsApp open on it.
+    void placeOrderAction({
+      customerName: form.fullName,
+      customerEmail: form.email,
+      customerPhone: form.phone,
+      countryCode: form.countryCode,
+      lines: lines.map((l) => ({
+        productId: l.productId,
+        slug: l.slug,
+        name: l.name,
+        colorway: l.colorway,
+        size: l.size,
+        price: l.price,
+        qty: l.qty,
+        image: l.image,
+        sku: l.sku,
+      })),
+      subtotal: order.subtotal,
+      shipping: order.shipping,
+      total: order.total,
+    }).catch(() => {});
     window.open(buildWhatsAppUrl(order), "_blank", "noopener");
   }
 

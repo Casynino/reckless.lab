@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getAllProducts, getProductStock } from "@/lib/data";
+import { getAllProducts } from "@/lib/data";
+import { productStock, variantStockMap } from "@/lib/inventory/store";
 import { formatPrice } from "@/lib/shop/format";
 import { SmartImage } from "@/components/ui/smart-image";
 import { PageTitle } from "@/components/admin/ui";
@@ -27,8 +28,9 @@ export default async function AdminProducts() {
           </thead>
           <tbody>
             {products.map((p) => {
-              const stock = getProductStock(p);
-              const bySize = (s: string) => p.variants.find((v) => v.size === s)?.stock;
+              const stock = productStock(p);
+              const map = variantStockMap(p);
+              const bySize = (s: string) => map[s];
               return (
                 <tr key={p.id} className="border-b border-smoke/50">
                   <td className="px-4 py-3">
