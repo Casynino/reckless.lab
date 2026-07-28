@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
 import { Wordmark } from "@/components/layout/wordmark";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const GROUPS: { title: string; items: { label: string; href: string; icon: LucideIcon }[] }[] = [
@@ -119,6 +120,7 @@ export function AdminShell({
         <div className="sticky top-0 z-20 flex items-center justify-between border-b border-smoke bg-ink/80 px-5 py-3.5 backdrop-blur-xl md:px-8">
           <span className="text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Operational HQ</span>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               href="/"
               target="_blank"

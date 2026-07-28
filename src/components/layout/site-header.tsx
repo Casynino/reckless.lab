@@ -10,6 +10,7 @@ import { primaryNav, secondaryNav } from "@/lib/shop/nav";
 import { shopConfig } from "@/lib/shop/config";
 import { Wordmark } from "@/components/layout/wordmark";
 import { AccountNav } from "@/components/auth/account-nav";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Magnetic } from "@/components/motion/magnetic";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +45,7 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
+          "site-header fixed inset-x-0 top-0 z-50 transition-colors duration-500",
           scrolled && !menuOpen
             ? "bg-ink/70 backdrop-blur-xl border-b border-smoke/60"
             : "bg-transparent",
@@ -95,6 +96,7 @@ export function SiteHeader() {
             >
               Shop
             </Link>
+            <ThemeToggle className="hidden md:flex" />
             <AccountNav />
             <Link
               href="/wishlist"

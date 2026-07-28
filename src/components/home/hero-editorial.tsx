@@ -49,6 +49,7 @@ export function HeroEditorial() {
       >
         <motion.span
           className="eyebrow mb-5"
+          style={{ color: "var(--color-onphoto-dim)" }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.8 }}
@@ -57,7 +58,7 @@ export function HeroEditorial() {
         </motion.span>
 
         <h1
-          className="font-display display-xl text-bone"
+          className="font-display display-xl text-onphoto"
           style={{ textShadow: "0 2px 40px rgba(10,10,11,0.55)" }}
         >
           <span className="block overflow-hidden">
@@ -83,7 +84,7 @@ export function HeroEditorial() {
         </h1>
 
         <motion.p
-          className="mt-6 max-w-md text-lg text-bone-dim"
+          className="mt-6 max-w-md text-lg text-onphoto-dim"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.9 }}
@@ -109,7 +110,7 @@ export function HeroEditorial() {
           </Magnetic>
           <Link
             href="/collections/reckless"
-            className="link-underline text-mono text-xs uppercase tracking-[0.25em] text-bone"
+            className="link-underline text-mono text-xs uppercase tracking-[0.25em] text-onphoto"
           >
             The Reckless Series
           </Link>
@@ -123,11 +124,11 @@ export function HeroEditorial() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 1 }}
       >
-        <span className="text-mono text-[0.6rem] uppercase tracking-[0.3em] text-fog">Scroll</span>
+        <span className="text-mono text-[0.6rem] uppercase tracking-[0.3em] text-onphoto-dim">Scroll</span>
         <span className="h-10 w-px animate-pulse bg-gradient-to-b from-acid to-transparent" />
       </motion.div>
 
-      <div className="absolute bottom-8 right-6 z-10 hidden text-mono text-[0.65rem] uppercase tracking-[0.25em] text-fog md:block">
+      <div className="absolute bottom-8 right-6 z-10 hidden text-mono text-[0.65rem] uppercase tracking-[0.25em] text-onphoto-dim md:block">
         FW / EST {shopConfig.brand.estYear}
       </div>
     </section>

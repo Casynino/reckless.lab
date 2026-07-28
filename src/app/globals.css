@@ -33,6 +33,42 @@
   --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
 
   --breakpoint-xs: 30rem;
+
+  /* Fixed light — for text that always sits over dark-scrimmed photography
+     (hero, campaign). Never flips with the theme. */
+  --color-onphoto: #f2efe8;
+  --color-onphoto-dim: #cfcbc2;
+}
+
+/* ============================================================
+   THEME — dark is the default; [data-theme="light"] flips the
+   semantic tokens (names stay, values invert) so every utility
+   (bg-ink, text-bone, border-smoke …) adapts automatically.
+   ============================================================ */
+:root {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-ink: #f5f2ec;
+  --color-ink-soft: #ffffff;
+  --color-carbon: #ece8df;
+  --color-smoke: #dcd7cc;
+  --color-ash: #837d71;
+  --color-fog: #54504a;
+  --color-bone: #1a1812;
+  --color-bone-dim: #3d3a31;
+  --color-paper: #ffffff;
+  --color-acid: #cf2b21;
+  --color-acid-dim: #a81f16;
+}
+
+/* In light mode the fixed header always gets a frosted light surface so its
+   (now dark) nav text stays readable over the dark-toned hero photo. */
+:root[data-theme="light"] .site-header {
+  background: color-mix(in srgb, var(--color-ink) 82%, transparent);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--color-smoke);
 }
 
 /* ---------- base ---------- */

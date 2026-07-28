@@ -23,7 +23,7 @@ export function StageMini({ state }: { state: OrderState }) {
             key={s.key}
             className="h-0.5 flex-1 rounded-full"
             style={{
-              background: done ? "rgba(52,211,153,0.5)" : isCurrent ? RED : "rgba(255,255,255,0.08)",
+              background: done ? "rgba(52,211,153,0.5)" : isCurrent ? RED : "var(--color-smoke)",
               boxShadow: isCurrent ? "0 0 6px rgba(224,52,42,0.5)" : "none",
             }}
           />

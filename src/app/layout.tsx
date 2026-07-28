@@ -47,8 +47,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${syne.variable} ${inter.variable} ${spaceMono.variable} h-full`}
     >
+      <head>
+        {/* Set theme before paint to avoid a flash. Defaults to dark. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('rl-theme');document.documentElement.dataset.theme=(t==='light'||t==='dark')?t:'dark';}catch(e){document.documentElement.dataset.theme='dark';}})();`,
+          }}
+        />
+      </head>
       <body className="grain min-h-full flex flex-col bg-ink text-bone">
         <ConditionalChrome>{children}</ConditionalChrome>
       </body>

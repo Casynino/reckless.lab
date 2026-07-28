@@ -34,13 +34,13 @@ export function CampaignEditorial({
           priority={false}
         />
       </Parallax>
-      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-[#0a0a0b]/50 to-[#0a0a0b]/40" />
 
       <div className="container-edge relative z-10 flex h-full flex-col justify-end pb-20 md:pb-28">
-        <span className="eyebrow mb-4">{kicker}</span>
+        <span className="eyebrow mb-4" style={{ color: "var(--color-onphoto-dim)" }}>{kicker}</span>
         <div className="overflow-hidden">
           <motion.h2
-            className="max-w-4xl font-display display-xl text-bone"
+            className="max-w-4xl font-display display-xl text-onphoto"
             initial={{ y: "110%" }}
             whileInView={{ y: "0%" }}
             viewport={{ once: true, margin: "-20%" }}

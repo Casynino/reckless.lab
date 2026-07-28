@@ -38,17 +38,17 @@ export function DashboardHero({ name }: { name: string }) {
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink/50 via-transparent to-ink/10" />
 
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 text-mono text-[0.65rem] uppercase tracking-[0.25em] text-bone/80">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-bone" />
+      <div className="relative z-10" style={{ color: "var(--color-onphoto)" }}>
+        <div className="flex items-center gap-3 text-mono text-[0.65rem] uppercase tracking-[0.25em] opacity-85">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
           <span>{dateLabel}</span>
-          <span className="rounded-full bg-ink/40 px-2 py-0.5 text-bone">Admin</span>
+          <span className="rounded-full bg-black/25 px-2 py-0.5">Admin</span>
         </div>
 
-        <h1 className="mt-4 font-display text-4xl text-bone md:text-5xl">
+        <h1 className="mt-4 font-display text-4xl md:text-5xl">
           {hello}, {first}. <span className="inline-block">👋</span>
         </h1>
-        <p className="mt-2 text-bone/80">Here&rsquo;s what&rsquo;s moving in the lab today.</p>
+        <p className="mt-2 opacity-85">Here&rsquo;s what&rsquo;s moving in the lab today.</p>
       </div>
     </motion.div>
   );
