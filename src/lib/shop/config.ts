@@ -18,11 +18,11 @@ export const shopConfig = {
     locationLabel: "Banjul → Worldwide",
   },
 
-  /** Business WhatsApp used to complete orders. Digits only, incl. country code. */
+  /** Business WhatsApp that receives orders ("Big Saul"). Digits only, incl.
+   *  country code. Overridable via NEXT_PUBLIC_WHATSAPP_NUMBER. */
   whatsapp: {
-    // The Gambia country code is 220. Replace with the real business line.
-    number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "2207000000",
-    label: process.env.NEXT_PUBLIC_WHATSAPP_LABEL ?? "+220 700 0000",
+    number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "2203449999",
+    label: process.env.NEXT_PUBLIC_WHATSAPP_LABEL ?? "+220 344 9999",
   },
 
   currency: {
