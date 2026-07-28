@@ -56,7 +56,7 @@ export const FEED = [
 /** Interactive "index" gallery rows on the homepage. */
 export const INDEX_ROWS = [
   { label: "The ‘I Exist’ Series", meta: "SET//01", href: "/collections/i-exist", image: img("T-1", 14) },
-  { label: "The Reckless Series", meta: "SET//02", href: "/collections/reckless", image: img("T-2", 3) },
-  { label: "Washed Blacks", meta: "SET//03", href: "/collections/limited-drops", image: img("T-4", 2) },
+  { label: "The ‘Identity’ Series", meta: "SET//02", href: "/collections/identity", image: img("T-2", 3) },
+  { label: "The Reckless Series", meta: "SET//03", href: "/collections/reckless", image: img("T-4", 1) },
   { label: "Essentials", meta: "SET//04", href: "/collections/essentials", image: img("T-6", 3) },
 ];

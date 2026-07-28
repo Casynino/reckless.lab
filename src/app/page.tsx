@@ -16,7 +16,7 @@ export default async function HomePage() {
   const [bestSellers, newArrivals, featured] = await Promise.all([
     getBestSellers(4),
     getNewArrivals(8),
-    getCollectionBySlug("reckless"),
+    getCollectionBySlug("identity"),
   ]);
 
   return (

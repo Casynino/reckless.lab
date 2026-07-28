@@ -25,13 +25,22 @@ export const collections: Collection[] = [
     cover: { src: img("T-1", 14), alt: "‘I Exist’ tee, washed blue, back print" },
   },
   {
-    slug: "reckless",
-    title: "The Reckless Series",
+    slug: "identity",
+    title: "The ‘Identity’ Series",
     tagline: "The mark of the lab.",
     description:
-      "The ‘Reckless’ Tee — our stylised R and its serpent, printed big on the back and small on the chest. Four washed colourways of the same idea.",
+      "The ‘Identity’ Tee — our stylised R and its serpent, printed big on the back and small on the chest. Three washed colourways of the same idea.",
     code: "SET//02",
-    cover: { src: img("T-2", 3), alt: "‘Reckless’ tee, white, back print" },
+    cover: { src: img("T-2", 3), alt: "‘Identity’ tee, white, back print" },
+  },
+  {
+    slug: "reckless",
+    title: "The Reckless Series",
+    tagline: "The signature.",
+    description:
+      "The ‘Reckless’ Tee — our R-Serpent and the RECKLESS wordmark locked up bold across the chest, on a washed black that drinks the light. The signature piece of the first drop.",
+    code: "SET//03",
+    cover: { src: img("T-4", 1), alt: "‘Reckless’ tee, washed black, front lockup" },
   },
   {
     slug: "essentials",
@@ -63,7 +72,7 @@ export const collections: Collection[] = [
     tagline: "Understated. Undeniable.",
     description: "Every piece is unisex — cut boxy, styled your way. Size down for a cropped fit.",
     code: "LAB//W",
-    cover: { src: img("T-2", 13), alt: "White ‘Reckless’ tee, styled" },
+    cover: { src: img("T-2", 13), alt: "White ‘Identity’ tee, styled" },
   },
   {
     slug: "future",

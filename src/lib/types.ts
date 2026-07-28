@@ -15,6 +15,7 @@ export type Gender = "men" | "women" | "unisex";
 export type CollectionSlug =
   | "new-arrivals"
   | "i-exist"
+  | "identity"
   | "reckless"
   | "essentials"
   | "limited-drops"

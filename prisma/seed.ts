@@ -128,18 +128,18 @@ async function main() {
   const orderCount = await db.order.count();
   if (orderCount === 0) {
     const seeds = [
-      { name: "Amie Njie", email: "amie.njie@example.com", phone: "+220 700 1121", country: "GM", state: "DELIVERED", daysAgo: 12, items: [{ slug: "reckless-tee-white", size: "M", qty: 1 }, { slug: "i-exist-tee-washed-blue", size: "L", qty: 1 }] },
+      { name: "Amie Njie", email: "amie.njie@example.com", phone: "+220 700 1121", country: "GM", state: "DELIVERED", daysAgo: 12, items: [{ slug: "identity-tee-white", size: "M", qty: 1 }, { slug: "i-exist-tee-washed-blue", size: "L", qty: 1 }] },
       { name: "Lamin Touray", email: "lamin.t@example.com", phone: "+220 700 4410", country: "GM", state: "IN_TRANSIT", daysAgo: 4, items: [{ slug: "reckless-tee-washed-black", size: "L", qty: 2 }] },
       { name: "Fatou Ceesay", email: "fatou.c@example.com", phone: "+220 700 8890", country: "GM", state: "PACKAGING", daysAgo: 1, items: [{ slug: "i-exist-tee-washed-grey", size: "S", qty: 1 }] },
-      { name: "Omar Sané", email: "omar.sane@example.com", phone: "+221 77 555 2020", country: "SN", state: "NEW", daysAgo: 0, items: [{ slug: "reckless-tee-washed-brown", size: "XL", qty: 1 }, { slug: "reckless-tee-storm-grey", size: "M", qty: 1 }] },
+      { name: "Omar Sané", email: "omar.sane@example.com", phone: "+221 77 555 2020", country: "SN", state: "NEW", daysAgo: 0, items: [{ slug: "identity-tee-washed-brown", size: "XL", qty: 1 }, { slug: "identity-tee-storm-grey", size: "M", qty: 1 }] },
       { name: "James Cole", email: "j.cole@example.com", phone: "+44 7700 900123", country: "GB", state: "DELIVERED", daysAgo: 20, items: [{ slug: "i-exist-tee-washed-blue", size: "M", qty: 1 }] },
-      { name: "Aisha Bah", email: "aisha.bah@example.com", phone: "+220 700 3321", country: "GM", state: "DELIVERED", daysAgo: 15, items: [{ slug: "reckless-tee-white", size: "S", qty: 1 }, { slug: "reckless-tee-storm-grey", size: "L", qty: 2 }] },
+      { name: "Aisha Bah", email: "aisha.bah@example.com", phone: "+220 700 3321", country: "GM", state: "DELIVERED", daysAgo: 15, items: [{ slug: "identity-tee-white", size: "S", qty: 1 }, { slug: "identity-tee-storm-grey", size: "L", qty: 2 }] },
       { name: "Marcus Reid", email: "m.reid@example.com", phone: "+1 202 555 0147", country: "US", state: "IN_TRANSIT", daysAgo: 6, items: [{ slug: "reckless-tee-washed-black", size: "M", qty: 1 }] },
       { name: "Binta Jallow", email: "binta.j@example.com", phone: "+220 700 6655", country: "GM", state: "PAYMENT_CONFIRMED", daysAgo: 0, items: [{ slug: "i-exist-tee-washed-grey", size: "L", qty: 1 }] },
-      { name: "Kebba Manneh", email: "kebba.m@example.com", phone: "+220 700 1198", country: "GM", state: "READY_TO_SHIP", daysAgo: 2, items: [{ slug: "reckless-tee-washed-brown", size: "M", qty: 1 }, { slug: "i-exist-tee-washed-blue", size: "M", qty: 1 }] },
-      { name: "Isatou Drammeh", email: "isatou.d@example.com", phone: "+220 700 7742", country: "GM", state: "ISSUE", daysAgo: 8, items: [{ slug: "reckless-tee-storm-grey", size: "XL", qty: 1 }] },
+      { name: "Kebba Manneh", email: "kebba.m@example.com", phone: "+220 700 1198", country: "GM", state: "READY_TO_SHIP", daysAgo: 2, items: [{ slug: "identity-tee-washed-brown", size: "M", qty: 1 }, { slug: "i-exist-tee-washed-blue", size: "M", qty: 1 }] },
+      { name: "Isatou Drammeh", email: "isatou.d@example.com", phone: "+220 700 7742", country: "GM", state: "ISSUE", daysAgo: 8, items: [{ slug: "identity-tee-storm-grey", size: "XL", qty: 1 }] },
       { name: "Modou Faye", email: "modou.f@example.com", phone: "+220 700 9903", country: "GM", state: "DELIVERED", daysAgo: 18, items: [{ slug: "i-exist-tee-washed-grey", size: "M", qty: 2 }] },
-      { name: "Grace Owens", email: "grace.o@example.com", phone: "+1 416 555 0199", country: "CA", state: "PACKAGING", daysAgo: 1, items: [{ slug: "reckless-tee-white", size: "M", qty: 1 }, { slug: "reckless-tee-washed-brown", size: "L", qty: 1 }] },
+      { name: "Grace Owens", email: "grace.o@example.com", phone: "+1 416 555 0199", country: "CA", state: "PACKAGING", daysAgo: 1, items: [{ slug: "identity-tee-white", size: "M", qty: 1 }, { slug: "identity-tee-washed-brown", size: "L", qty: 1 }] },
     ] as const;
 
     const STAGES = ["NEW", "PAYMENT_CONFIRMED", "PACKAGING", "READY_TO_SHIP", "IN_TRANSIT", "DELIVERED"];

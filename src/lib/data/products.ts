@@ -29,6 +29,13 @@ const serpentDetails = [
   "Washed, lived-in hand-feel",
 ];
 const serpentMaterials = ["100% heavyweight cotton", "240gsm pigment-washed jersey"];
+const recklessDetails = [
+  "Boxy, dropped-shoulder fit",
+  "R-Serpent + ‘RECKLESS’ front lockup",
+  "Bold, centred chest placement",
+  "Garment-dyed washed black",
+  "Washed, lived-in hand-feel",
+];
 const care = ["Cold wash inside out", "Line dry", "Do not tumble", "Warm iron, avoid print"];
 
 export const products: Product[] = [
@@ -86,25 +93,25 @@ export const products: Product[] = [
     care,
   },
 
-  // ── R-SERPENT SERIES ──────────────────────────────────────────────
+  // ── IDENTITY SERIES (R-Serpent back graphic) ──────────────────────
   {
     id: "rs-wht",
-    slug: "reckless-tee-white",
-    name: "‘Reckless’ Tee",
+    slug: "identity-tee-white",
+    name: "‘Identity’ Tee",
     subtitle: "Graphic heavyweight · front + back",
     price: 30,
     gender: "unisex",
-    collections: ["reckless", "new-arrivals", "essentials", "men", "women"],
+    collections: ["identity", "new-arrivals", "essentials", "men", "women"],
     colorway: "White",
     isNew: true,
     isBestSeller: true,
     order: 3,
     media: [
-      { src: img("T-2", 3), alt: "‘Reckless’ tee, white — back graphic" },
-      { src: img("T-2", 13), alt: "‘Reckless’ tee, white — front chest mark" },
-      { src: img("T-2", 1), alt: "‘Reckless’ tee, white — full look" },
-      { src: img("T-2", 7), alt: "‘Reckless’ tee, white — layered styling" },
-      { src: img("T-2", 10), alt: "‘Reckless’ tee, white — back detail" },
+      { src: img("T-2", 3), alt: "‘Identity’ tee, white — back graphic" },
+      { src: img("T-2", 13), alt: "‘Identity’ tee, white — front chest mark" },
+      { src: img("T-2", 1), alt: "‘Identity’ tee, white — full look" },
+      { src: img("T-2", 7), alt: "‘Identity’ tee, white — layered styling" },
+      { src: img("T-2", 10), alt: "‘Identity’ tee, white — back detail" },
     ],
     variants: variants("RS-WHT", { S: 10, M: 18, L: 14, XL: 8 }),
     story:
@@ -113,11 +120,12 @@ export const products: Product[] = [
     materials: serpentMaterials,
     care,
   },
+  // ── RECKLESS (front-logo signature) ───────────────────────────────
   {
     id: "rs-blk",
     slug: "reckless-tee-washed-black",
     name: "‘Reckless’ Tee",
-    subtitle: "Graphic heavyweight · washed",
+    subtitle: "Front logo lockup · washed black",
     price: 35,
     gender: "unisex",
     collections: ["reckless", "new-arrivals", "essentials", "limited-drops", "men", "women"],
@@ -126,36 +134,36 @@ export const products: Product[] = [
     isLimited: true,
     order: 4,
     media: [
-      { src: img("T-4", 2), alt: "‘Reckless’ tee, washed black — front" },
-      { src: img("T-4", 13), alt: "‘Reckless’ tee, washed black — print detail" },
+      { src: img("T-4", 1), alt: "‘Reckless’ tee, washed black — front R-Serpent + RECKLESS lockup" },
+      { src: img("T-4", 2), alt: "‘Reckless’ tee, washed black — front logo, styled with plaid" },
+      { src: img("T-4", 13), alt: "‘Reckless’ tee, washed black — logo detail" },
       { src: img("T-4", 7), alt: "‘Reckless’ tee, washed black — full look with flannel" },
-      { src: img("T-4", 10), alt: "‘Reckless’ tee, washed black — back" },
       { src: img("T-4", 16), alt: "‘Reckless’ tee, washed black — styled" },
     ],
     variants: variants("RS-BLK", { S: 4, M: 8, L: 7, XL: 3 }),
     story:
-      "A washed black so deep it drinks the light, with the R-Serpent bled red across the front. A limited wash — when it's gone, it's gone. Styled here with a plaid tied low.",
-    details: serpentDetails,
+      "The signature. Our stylised R and its serpent locked up with the RECKLESS wordmark, printed bold across the chest on a washed black that drinks the light. A limited wash — when it's gone, it's gone. Styled here with a plaid kilt over cargos.",
+    details: recklessDetails,
     materials: serpentMaterials,
     care,
   },
   {
     id: "rs-brn",
-    slug: "reckless-tee-washed-brown",
-    name: "‘Reckless’ Tee",
+    slug: "identity-tee-washed-brown",
+    name: "‘Identity’ Tee",
     subtitle: "Graphic heavyweight · washed",
     price: 35,
     gender: "unisex",
-    collections: ["reckless", "new-arrivals", "essentials", "men", "women"],
+    collections: ["identity", "new-arrivals", "essentials", "men", "women"],
     colorway: "Washed Brown",
     isNew: true,
     order: 5,
     media: [
-      { src: img("T-5", 7), alt: "‘Reckless’ tee, washed brown — front" },
-      { src: img("T-5", 5), alt: "‘Reckless’ tee, washed brown — back graphic" },
-      { src: img("T-5", 6), alt: "‘Reckless’ tee, washed brown — print detail" },
-      { src: img("T-5", 1), alt: "‘Reckless’ tee, washed brown — full look" },
-      { src: img("T-5", 9), alt: "‘Reckless’ tee, washed brown — back" },
+      { src: img("T-5", 7), alt: "‘Identity’ tee, washed brown — front" },
+      { src: img("T-5", 5), alt: "‘Identity’ tee, washed brown — back graphic" },
+      { src: img("T-5", 6), alt: "‘Identity’ tee, washed brown — print detail" },
+      { src: img("T-5", 1), alt: "‘Identity’ tee, washed brown — full look" },
+      { src: img("T-5", 9), alt: "‘Identity’ tee, washed brown — back" },
     ],
     variants: variants("RS-BRN", { S: 7, M: 11, L: 10, XL: 5 }),
     story:
@@ -166,21 +174,21 @@ export const products: Product[] = [
   },
   {
     id: "rs-gry",
-    slug: "reckless-tee-storm-grey",
-    name: "‘Reckless’ Tee",
+    slug: "identity-tee-storm-grey",
+    name: "‘Identity’ Tee",
     subtitle: "Graphic heavyweight · contrast trim",
     price: 35,
     gender: "unisex",
-    collections: ["reckless", "new-arrivals", "essentials", "men", "women"],
+    collections: ["identity", "new-arrivals", "essentials", "men", "women"],
     colorway: "Storm Grey",
     isNew: true,
     order: 6,
     media: [
-      { src: img("T-6", 3), alt: "‘Reckless’ tee, storm grey — front" },
-      { src: img("T-6", 2), alt: "‘Reckless’ tee, storm grey — back graphic" },
-      { src: img("T-6", 5), alt: "‘Reckless’ tee, storm grey — chest mark detail" },
-      { src: img("T-6", 1), alt: "‘Reckless’ tee, storm grey — full look" },
-      { src: img("T-6", 7), alt: "‘Reckless’ tee, storm grey — back" },
+      { src: img("T-6", 3), alt: "‘Identity’ tee, storm grey — front" },
+      { src: img("T-6", 2), alt: "‘Identity’ tee, storm grey — back graphic" },
+      { src: img("T-6", 5), alt: "‘Identity’ tee, storm grey — chest mark detail" },
+      { src: img("T-6", 1), alt: "‘Identity’ tee, storm grey — full look" },
+      { src: img("T-6", 7), alt: "‘Identity’ tee, storm grey — back" },
     ],
     variants: variants("RS-GRY", { S: 9, M: 13, L: 11, XL: 6 }),
     story:
