@@ -12,6 +12,7 @@ import { DashboardHero } from "@/components/admin/dashboard-hero";
 import { HealthCards, type HealthCard } from "@/components/admin/health-cards";
 import { AttentionPanel, type AttnItem } from "@/components/admin/attention-panel";
 import { QuickActions } from "@/components/admin/quick-actions";
+import { RevenueSplit } from "@/components/admin/revenue-split";
 import { Reveal } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,21 @@ export default async function AdminOverview() {
   const recent = orders.slice(0, 5);
 
   const totalUnits = products.reduce((n, p) => n + productStock(p), 0);
+
+  // Revenue split + money-in
+  const paidOrders = orders.filter((o) => o.state !== "new" && o.state !== "cancelled");
+  const avgOrderValue = paidOrders.length ? Math.round(paidOrders.reduce((n, o) => n + o.total, 0) / paidOrders.length) : 0;
+  const revenueSplit = {
+    series: a.categories,
+    revenueThisMonth: a.revenue.thisMonth,
+    revenueToday: a.revenue.today,
+    ordersTotal: a.orders.total,
+    avgOrderValue,
+    paidCount: paidOrders.length,
+    awaitingCount: orders.filter((o) => ["new", "payment_confirmed", "packaging", "ready_to_ship"].includes(o.state)).length,
+    inTransitCount: orders.filter((o) => o.state === "in_transit").length,
+    deliveredCount: orders.filter((o) => o.state === "delivered").length,
+  };
 
   const health: HealthCard[] = [
     { key: "revenue", label: "Revenue this month", value: a.revenue.thisMonth, money: true, sub: `${a.revenue.growthPct >= 0 ? "+" : ""}${a.revenue.growthPct}% vs last month` },
@@ -101,6 +117,11 @@ export default async function AdminOverview() {
       <section>
         <p className="mb-4 text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Quick actions</p>
         <QuickActions />
+      </section>
+
+      <section>
+        <p className="mb-4 text-mono text-[0.6rem] uppercase tracking-[0.3em] text-ash">Revenue &amp; collections · this month</p>
+        <RevenueSplit data={revenueSplit} />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">

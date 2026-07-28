@@ -12,6 +12,18 @@ const TINTS: Record<string, string> = {
   customers: "bg-violet-500/15 text-violet-400",
   stock: "bg-acid/15 text-acid",
 };
+const WASH: Record<string, string> = {
+  revenue: "from-emerald-500/12",
+  orders: "from-blue-500/12",
+  customers: "from-violet-500/12",
+  stock: "from-[#e0342a]/12",
+};
+const GLOW: Record<string, string> = {
+  revenue: "bg-emerald-500/20",
+  orders: "bg-blue-500/20",
+  customers: "bg-violet-500/20",
+  stock: "bg-[#e0342a]/20",
+};
 
 export interface HealthCard {
   key: "revenue" | "orders" | "customers" | "stock";
@@ -33,9 +45,9 @@ export function HealthCards({ cards }: { cards: HealthCard[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -4 }}
-            className="group relative overflow-hidden rounded-2xl border border-smoke bg-ink-soft p-5 transition-colors hover:border-ash/40"
+            className={`group relative overflow-hidden rounded-2xl border border-smoke bg-gradient-to-br ${WASH[c.key]} to-transparent p-5 transition-colors hover:border-ash/40`}
           >
-            <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-acid/5 opacity-0 blur-2xl transition-opacity group-hover:opacity-100" />
+            <div className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full ${GLOW[c.key]} opacity-0 blur-2xl transition-opacity group-hover:opacity-100`} />
             <div className="flex items-start justify-between">
               <p className="text-[0.6rem] uppercase tracking-[0.2em] text-ash">{c.label}</p>
               <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${TINTS[c.key]}`}>
