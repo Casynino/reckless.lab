@@ -36,10 +36,15 @@ const FIELDS: { key: keyof ShippingAddress; label: string; required?: boolean; t
   { key: "postalCode", label: "Postal code", half: true },
 ];
 
+type Placed = { reference: string; tracking: string; waUrl: string };
+
 export function CheckoutClient() {
   const lines = useCart((s) => s.lines);
+  const clearCart = useCart((s) => s.clear);
   const [form, setForm] = useState<ShippingAddress>(EMPTY);
   const [touched, setTouched] = useState(false);
+  const [status, setStatus] = useState<"idle" | "placing" | "error">("idle");
+  const [placed, setPlaced] = useState<Placed | null>(null);
 
   const subtotal = cartSubtotal(lines);
   const zone = getZoneForCountry(form.countryCode);
@@ -58,20 +63,24 @@ export function CheckoutClient() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function complete() {
+  async function complete() {
     setTouched(true);
-    if (!valid) {
-      document.getElementById("checkout-form")?.scrollIntoView({ behavior: "smooth" });
+    if (!valid || status === "placing") {
+      if (!valid) document.getElementById("checkout-form")?.scrollIntoView({ behavior: "smooth" });
       return;
     }
-    const order = buildOrderDraft(lines, form, Date.now());
-    // Record the order so it appears in the admin Order Monitor, then hand off
-    // to WhatsApp. Fire-and-forget — never block the WhatsApp open on it.
-    void placeOrderAction({
+    setStatus("placing");
+    const draft = buildOrderDraft(lines, form, Date.now());
+    const res = await placeOrderAction({
       customerName: form.fullName,
       customerEmail: form.email,
       customerPhone: form.phone,
       countryCode: form.countryCode,
+      address1: form.address1,
+      address2: form.address2 || undefined,
+      city: form.city,
+      region: form.region || undefined,
+      postalCode: form.postalCode || undefined,
       lines: lines.map((l) => ({
         productId: l.productId,
         slug: l.slug,
@@ -83,11 +92,59 @@ export function CheckoutClient() {
         image: l.image,
         sku: l.sku,
       })),
-      subtotal: order.subtotal,
-      shipping: order.shipping,
-      total: order.total,
-    }).catch(() => {});
-    window.open(buildWhatsAppUrl(order), "_blank", "noopener");
+      subtotal: draft.subtotal,
+      shipping: draft.shipping,
+      total: draft.total,
+    }).catch(() => null);
+
+    if (!res || "error" in res) {
+      setStatus("error");
+      return;
+    }
+    // Use the real (server) order reference in the WhatsApp hand-off.
+    const waUrl = buildWhatsAppUrl({ ...draft, reference: res.reference });
+    clearCart();
+    setPlaced({ reference: res.reference, tracking: res.tracking, waUrl });
+  }
+
+  // Confirmation
+  if (placed) {
+    return (
+      <div className="container-edge flex min-h-[80vh] flex-col items-center justify-center pt-28 pb-24 text-center">
+        <span className="eyebrow text-acid">[ Order Placed ]</span>
+        <h1 className="mt-5 font-display display-lg text-bone">You&apos;re in.</h1>
+        <p className="mt-4 max-w-md text-fog">
+          Your order is logged. Finish on WhatsApp — our team confirms stock and sends payment instructions.
+          Save these numbers to track it any time.
+        </p>
+        <div className="mt-10 grid w-full max-w-md grid-cols-2 gap-4">
+          <div className="rounded-sm border border-smoke bg-ink-soft p-5">
+            <p className="text-mono text-[0.55rem] uppercase tracking-[0.25em] text-ash">Order number</p>
+            <p className="mt-2 font-display text-2xl tracking-tight text-bone">{placed.reference}</p>
+          </div>
+          <div className="rounded-sm border border-smoke bg-ink-soft p-5">
+            <p className="text-mono text-[0.55rem] uppercase tracking-[0.25em] text-ash">Tracking number</p>
+            <p className="mt-2 font-display text-2xl tracking-tight text-bone">{placed.tracking}</p>
+          </div>
+        </div>
+        <a
+          href={placed.waUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-8 inline-flex items-center gap-2 bg-acid px-10 py-4 text-mono text-xs font-bold uppercase tracking-[0.25em] text-ink transition-opacity hover:opacity-90"
+        >
+          Continue on WhatsApp <ArrowRight className="h-4 w-4" />
+        </a>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          <Link href={`/track?ref=${placed.reference}&trk=${placed.tracking}`} className="link-underline text-mono text-xs uppercase tracking-[0.2em] text-bone">
+            Track your order
+          </Link>
+          <Link href="/collections" className="link-underline text-mono text-xs uppercase tracking-[0.2em] text-bone-dim hover:text-bone">
+            Keep shopping
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (lines.length === 0) {
@@ -221,14 +278,21 @@ export function CheckoutClient() {
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={complete}
+            disabled={status === "placing"}
             data-cursor="send"
-            className="mt-6 flex w-full items-center justify-center gap-2 bg-acid py-4 text-mono text-xs font-bold uppercase tracking-[0.25em] text-ink transition-opacity hover:opacity-90"
+            className="mt-6 flex w-full items-center justify-center gap-2 bg-acid py-4 text-mono text-xs font-bold uppercase tracking-[0.25em] text-ink transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            Complete via WhatsApp <ArrowRight className="h-4 w-4" />
+            {status === "placing" ? "Placing order…" : <>Place order &amp; continue <ArrowRight className="h-4 w-4" /></>}
           </motion.button>
-          <p className="mt-3 text-center text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">
-            Opens WhatsApp to {shopConfig.whatsapp.label}
-          </p>
+          {status === "error" ? (
+            <p className="mt-3 text-center text-mono text-[0.6rem] uppercase tracking-[0.15em] text-acid">
+              Something went wrong. Please try again.
+            </p>
+          ) : (
+            <p className="mt-3 text-center text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">
+              Generates your order + tracking number, then WhatsApp to {shopConfig.whatsapp.label}
+            </p>
+          )}
         </div>
 
         <details className="mt-4 border border-smoke bg-ink-soft p-4">

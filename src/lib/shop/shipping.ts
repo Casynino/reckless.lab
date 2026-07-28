@@ -46,21 +46,52 @@ export const shippingZones: ShippingZone[] = [
 
 /** Countries offered in the checkout selector (home market first). */
 export const shippingCountries: { code: string; name: string }[] = [
+  // Home markets
   { code: "GM", name: "The Gambia" },
+  { code: "TZ", name: "Tanzania" },
+  { code: "CN", name: "China" },
+  { code: "US", name: "United States" },
+  // Africa
   { code: "SN", name: "Senegal" },
   { code: "NG", name: "Nigeria" },
   { code: "GH", name: "Ghana" },
+  { code: "KE", name: "Kenya" },
+  { code: "UG", name: "Uganda" },
+  { code: "RW", name: "Rwanda" },
+  { code: "ET", name: "Ethiopia" },
+  { code: "ZA", name: "South Africa" },
+  { code: "EG", name: "Egypt" },
+  { code: "MA", name: "Morocco" },
+  { code: "CI", name: "Côte d’Ivoire" },
+  // Europe
   { code: "GB", name: "United Kingdom" },
-  { code: "US", name: "United States" },
-  { code: "CA", name: "Canada" },
   { code: "FR", name: "France" },
   { code: "DE", name: "Germany" },
   { code: "IT", name: "Italy" },
   { code: "ES", name: "Spain" },
   { code: "NL", name: "Netherlands" },
+  { code: "SE", name: "Sweden" },
+  { code: "CH", name: "Switzerland" },
+  { code: "PT", name: "Portugal" },
+  { code: "IE", name: "Ireland" },
+  // Americas
+  { code: "CA", name: "Canada" },
+  { code: "MX", name: "Mexico" },
+  { code: "BR", name: "Brazil" },
+  // Middle East & Asia-Pacific
   { code: "AE", name: "United Arab Emirates" },
-  { code: "ZA", name: "South Africa" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "QA", name: "Qatar" },
+  { code: "TR", name: "Türkiye" },
+  { code: "IN", name: "India" },
+  { code: "JP", name: "Japan" },
+  { code: "KR", name: "South Korea" },
+  { code: "SG", name: "Singapore" },
+  { code: "MY", name: "Malaysia" },
+  { code: "HK", name: "Hong Kong" },
   { code: "AU", name: "Australia" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "OTHER", name: "Other — worldwide" },
 ];
 
 export function getZoneForCountry(countryCode: string): ShippingZone {

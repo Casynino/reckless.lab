@@ -120,6 +120,7 @@ export function SiteHeader() {
             </Link>
             <Magnetic strength={0.4}>
               <button
+                id="cart-fly-target"
                 onClick={openCart}
                 data-cursor="cart"
                 className="flex items-center gap-2 text-mono text-[0.7rem] uppercase tracking-[0.25em] text-bone"

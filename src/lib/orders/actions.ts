@@ -26,14 +26,21 @@ export async function placeOrderAction(input: {
   customerEmail: string;
   customerPhone: string;
   countryCode: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  region?: string;
+  postalCode?: string;
   lines: OrderLine[];
   subtotal: number;
   shipping: number;
   total: number;
 }) {
   if (!input.lines?.length) return { error: "Empty order." };
-  const order = await createOrder(input);
+  const session = await getSession();
+  const order = await createOrder(input, { userId: session?.sub });
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
+  revalidatePath("/account");
   return { ok: true, reference: order.reference, tracking: order.tracking };
 }

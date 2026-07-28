@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import type { Product, Size } from "@/lib/types";
 import { useCart } from "@/lib/shop/cart-store";
+import { flyToCart } from "@/lib/shop/fly-to-cart";
 import { formatPrice } from "@/lib/shop/format";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
 import { WishlistButton } from "@/components/product/wishlist-button";
@@ -28,12 +29,16 @@ export function ProductPurchase({ product }: { product: Product }) {
   const soldOut = product.variants.every((v) => v.stock === 0);
   const lowStock = selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 4;
 
-  function handleAdd() {
+  function handleAdd(e?: React.MouseEvent) {
     if (!size) {
       setError(true);
       return;
     }
     add(product, size, 1);
+    if (e) {
+      const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      flyToCart(product.media[0]?.src ?? "", { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    }
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   }

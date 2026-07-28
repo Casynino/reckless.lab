@@ -35,6 +35,11 @@ function toOrder(o: OrderRow): Order {
     customerEmail: o.customerEmail,
     customerPhone: o.customerPhone,
     countryCode: o.countryCode,
+    address1: o.address1,
+    address2: o.address2 ?? undefined,
+    city: o.city,
+    region: o.region ?? undefined,
+    postalCode: o.postalCode ?? undefined,
     lines: o.items.map(
       (i): OrderLine => ({
         productId: i.productId ?? "",
@@ -67,17 +72,40 @@ export async function getOrder(id: string): Promise<Order | undefined> {
   return row ? toOrder(row) : undefined;
 }
 
+/** Public tracking lookup — by the order reference (RL-XXXXXX). */
+export async function getOrderByReference(reference: string): Promise<Order | undefined> {
+  const row = await db.order.findUnique({ where: { reference }, include: orderInclude });
+  return row ? toOrder(row) : undefined;
+}
+
+/** A customer's own orders, newest first — matched on the checkout email. */
+export async function listOrdersForEmail(email: string): Promise<Order[]> {
+  const rows = await db.order.findMany({
+    where: { customerEmail: { equals: email, mode: "insensitive" } },
+    include: orderInclude,
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map(toOrder);
+}
+
 export async function createOrder(
   input: Omit<Order, "id" | "reference" | "tracking" | "state" | "history" | "createdAt">,
+  opts?: { userId?: string },
 ): Promise<Order> {
   const row = await db.order.create({
     data: {
       reference: "RL-" + code(6),
       tracking: `RL-${code(4)}-${code(4)}`,
+      userId: opts?.userId ?? null,
       customerName: input.customerName,
       customerEmail: input.customerEmail,
       customerPhone: input.customerPhone,
       countryCode: input.countryCode,
+      address1: input.address1,
+      address2: input.address2 ?? null,
+      city: input.city,
+      region: input.region ?? null,
+      postalCode: input.postalCode ?? null,
       subtotal: input.subtotal,
       shipping: input.shipping,
       total: input.total,

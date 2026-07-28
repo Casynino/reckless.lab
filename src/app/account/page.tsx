@@ -5,9 +5,11 @@ import { Heart, ShoppingBag, LogOut, ArrowUpRight, MessageSquare } from "lucide-
 import { getSession } from "@/lib/auth/session-cookies";
 import { findById } from "@/lib/auth/store";
 import { logoutAction } from "@/lib/auth/actions";
+import { listOrdersForEmail } from "@/lib/orders/store";
 import { PageHero } from "@/components/layout/page-hero";
 import { AddressForm } from "@/components/account/address-form";
 import { ProfileForm } from "@/components/account/profile-form";
+import { AccountOrders } from "@/components/account/account-orders";
 import { shopConfig } from "@/lib/shop/config";
 
 export const metadata: Metadata = { title: "Your Account" };
@@ -17,7 +19,7 @@ export default async function AccountPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/account");
 
-  const user = await findById(session.sub);
+  const [user, orders] = await Promise.all([findById(session.sub), listOrdersForEmail(session.email)]);
   const firstName = session.name.split(" ")[0];
 
   return (
@@ -72,21 +74,14 @@ export default async function AccountPage() {
 
         {/* Right: orders + address */}
         <div className="flex flex-col gap-8">
-          <section className="rounded-sm border border-smoke bg-ink-soft p-6">
-            <h2 className="text-mono text-xs uppercase tracking-[0.25em] text-bone">Orders</h2>
-            <p className="mt-4 text-sm text-fog">
-              You complete orders over WhatsApp for now, so they aren&rsquo;t tracked to your account yet. Live order
-              history lands with online payments. Questions on a current order?{" "}
-              <a
-                href={`https://wa.me/${shopConfig.whatsapp.number}`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-acid underline"
-              >
-                Message us
-              </a>
-              .
-            </p>
+          <section>
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-mono text-xs uppercase tracking-[0.25em] text-bone">Your orders</h2>
+              <Link href="/track" className="link-underline text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash hover:text-bone">
+                Track by number →
+              </Link>
+            </div>
+            <AccountOrders orders={orders} />
           </section>
 
           <section className="rounded-sm border border-smoke bg-ink-soft p-6">

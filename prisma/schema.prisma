@@ -254,6 +254,11 @@ model Order {
   customerEmail String
   customerPhone String
   countryCode   String       @default("GM")
+  address1      String       @default("")
+  address2      String?
+  city          String       @default("")
+  region        String?
+  postalCode    String?
   subtotal      Int
   shipping      Int
   total         Int

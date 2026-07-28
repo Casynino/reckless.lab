@@ -54,6 +54,11 @@ export interface Order {
   customerEmail: string;
   customerPhone: string;
   countryCode: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  region?: string;
+  postalCode?: string;
   lines: OrderLine[];
   subtotal: number;
   shipping: number;
