@@ -2,6 +2,8 @@ import { PageTitle, Panel } from "@/components/admin/ui";
 import { shopConfig } from "@/lib/shop/config";
 import { shippingZones, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
 import { formatPrice } from "@/lib/shop/format";
+import { getSession } from "@/lib/auth/session-cookies";
+import { ProfileForm } from "@/components/account/profile-form";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +16,19 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function AdminSettings() {
+export default async function AdminSettings() {
+  const session = await getSession();
+
   return (
     <div>
-      <PageTitle title="Settings" subtitle="Current store configuration (edit via .env.local / config)." />
+      <PageTitle title="Settings" subtitle="Your profile + current store configuration." />
+
+      {session && (
+        <div className="mb-8 rounded-2xl border border-smoke bg-ink-soft p-6">
+          <h2 className="mb-6 text-mono text-xs uppercase tracking-[0.25em] text-bone">My profile</h2>
+          <ProfileForm name={session.name} email={session.email} />
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel title="Brand">

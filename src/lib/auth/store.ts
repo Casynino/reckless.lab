@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 import type { Address, Role, UserRecord } from "./types";
-import { hashPassword } from "./password";
+import { hashPassword, verifyPassword } from "./password";
 
 /**
  * Simple file-backed user store — zero-setup, persists locally across restarts.
@@ -90,6 +90,35 @@ export function createUser(input: {
   };
   writeAll([...users, user]);
   return user;
+}
+
+export function updateUserProfile(id: string, patch: { name?: string; email?: string }): UserRecord {
+  const users = getUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) throw new Error("Account not found.");
+  const nextEmail = patch.email?.toLowerCase().trim();
+  if (nextEmail && nextEmail !== users[idx].email && users.some((u) => u.email === nextEmail)) {
+    throw new Error("That email is already in use.");
+  }
+  users[idx] = {
+    ...users[idx],
+    name: patch.name?.trim() || users[idx].name,
+    email: nextEmail || users[idx].email,
+  };
+  writeAll(users);
+  return users[idx];
+}
+
+export function updateUserPassword(id: string, current: string, next: string): void {
+  const users = getUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) throw new Error("Account not found.");
+  if (!verifyPassword(current, users[idx].salt, users[idx].passwordHash)) {
+    throw new Error("Current password is wrong.");
+  }
+  const { salt, hash } = hashPassword(next);
+  users[idx] = { ...users[idx], salt, passwordHash: hash };
+  writeAll(users);
 }
 
 export function updateUserAddress(id: string, address: Address): UserRecord | undefined {

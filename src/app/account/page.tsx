@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Heart, ShoppingBag, LogOut, ArrowUpRight } from "lucide-react";
+import { Heart, ShoppingBag, LogOut, ArrowUpRight, MessageSquare } from "lucide-react";
 import { getSession } from "@/lib/auth/session-cookies";
 import { findById } from "@/lib/auth/store";
 import { logoutAction } from "@/lib/auth/actions";
 import { PageHero } from "@/components/layout/page-hero";
 import { AddressForm } from "@/components/account/address-form";
+import { ProfileForm } from "@/components/account/profile-form";
 import { shopConfig } from "@/lib/shop/config";
 
 export const metadata: Metadata = { title: "Your Account" };
@@ -31,6 +32,16 @@ export default async function AccountPage() {
             <p className="mt-2 font-display text-2xl text-bone">{session.name}</p>
             <p className="mt-1 text-sm text-fog">{session.email}</p>
           </div>
+
+          <Link
+            href="/account/messages"
+            className="flex items-center justify-between border border-smoke bg-ink-soft p-5 transition-colors hover:border-acid"
+          >
+            <span className="flex items-center gap-3 text-bone">
+              <MessageSquare className="h-5 w-5 text-acid" /> Support chat
+            </span>
+            <ArrowUpRight className="h-4 w-4 text-ash" />
+          </Link>
 
           <Link
             href="/wishlist"
@@ -76,6 +87,11 @@ export default async function AccountPage() {
               </a>
               .
             </p>
+          </section>
+
+          <section className="border border-smoke bg-ink-soft p-6">
+            <h2 className="mb-5 text-mono text-xs uppercase tracking-[0.25em] text-bone">Your profile</h2>
+            <ProfileForm name={session.name} email={session.email} />
           </section>
 
           <section className="border border-smoke bg-ink-soft p-6">

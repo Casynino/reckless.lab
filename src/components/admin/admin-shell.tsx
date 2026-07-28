@@ -12,6 +12,7 @@ import {
   ExternalLink,
   BarChart2,
   Boxes,
+  MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
@@ -33,6 +34,7 @@ const GROUPS: { title: string; items: { label: string; href: string; icon: Lucid
     items: [
       { label: "Analytics", href: "/admin/analytics", icon: BarChart2 },
       { label: "Customers", href: "/admin/customers", icon: Users },
+      { label: "Messages", href: "/admin/messages", icon: MessageSquare },
     ],
   },
   { title: "System", items: [{ label: "Settings", href: "/admin/settings", icon: Settings }] },

@@ -1,7 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { findByEmail, createUser, updateUserAddress } from "./store";
+import { revalidatePath } from "next/cache";
+import { findByEmail, createUser, updateUserAddress, updateUserProfile, updateUserPassword, findById } from "./store";
 import { verifyPassword } from "./password";
 import { setSession, clearSession, getSession } from "./session-cookies";
 import type { Address } from "./types";
@@ -59,6 +60,47 @@ export async function registerAction(_prev: AuthState, formData: FormData): Prom
 export async function logoutAction() {
   await clearSession();
   redirect("/");
+}
+
+/** Update the signed-in user's name / email (re-issues the session). */
+export async function updateProfileAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const session = await getSession();
+  if (!session) return { error: "You're signed out." };
+
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!name || !email) return { error: "Name and email are required." };
+  if (!email.includes("@")) return { error: "Enter a valid email." };
+
+  let user;
+  try {
+    user = updateUserProfile(session.sub, { name, email });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not update profile." };
+  }
+  // Refresh the session so the new name/email take effect immediately.
+  await setSession({ sub: user.id, email: user.email, name: user.name, role: user.role });
+  revalidatePath("/account");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+/** Change the signed-in user's password (requires current password). */
+export async function changePasswordAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const session = await getSession();
+  if (!session) return { error: "You're signed out." };
+
+  const current = String(formData.get("current") ?? "");
+  const next = String(formData.get("next") ?? "");
+  if (next.length < 6) return { error: "New password must be at least 6 characters." };
+  if (!findById(session.sub)) return { error: "Account not found." };
+
+  try {
+    updateUserPassword(session.sub, current, next);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not change password." };
+  }
+  return { ok: true };
 }
 
 /** Save the signed-in customer's shipping address. */
