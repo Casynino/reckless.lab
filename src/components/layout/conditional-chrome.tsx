@@ -6,6 +6,7 @@ import { Cursor } from "@/components/layout/cursor";
 import { Preloader } from "@/components/layout/preloader";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 
 /**
@@ -26,7 +27,10 @@ export function ConditionalChrome({ children }: { children: React.ReactNode }) {
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        {/* Clears the fixed mobile tab bar */}
+        <div className="h-16 md:hidden" />
       </SmoothScroll>
+      <MobileTabBar />
       <CartDrawer />
     </>
   );
