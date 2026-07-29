@@ -3,14 +3,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Heart, ShoppingBag, LogOut, ArrowUpRight, MessageSquare } from "lucide-react";
 import { getSession } from "@/lib/auth/session-cookies";
-import { findById } from "@/lib/auth/store";
 import { logoutAction } from "@/lib/auth/actions";
 import { listOrdersForEmail } from "@/lib/orders/store";
+import { listAddresses } from "@/lib/account/addresses";
 import { PageHero } from "@/components/layout/page-hero";
-import { AddressForm } from "@/components/account/address-form";
 import { ProfileForm } from "@/components/account/profile-form";
 import { AccountOrders } from "@/components/account/account-orders";
-import { shopConfig } from "@/lib/shop/config";
+import { AddressBook } from "@/components/account/address-book";
 
 export const metadata: Metadata = { title: "Your Account" };
 export const dynamic = "force-dynamic";
@@ -19,7 +18,10 @@ export default async function AccountPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/account");
 
-  const [user, orders] = await Promise.all([findById(session.sub), listOrdersForEmail(session.email)]);
+  const [orders, addresses] = await Promise.all([
+    listOrdersForEmail(session.email),
+    listAddresses(session.sub),
+  ]);
   const firstName = session.name.split(" ")[0];
 
   return (
@@ -89,14 +91,12 @@ export default async function AccountPage() {
             <ProfileForm name={session.name} email={session.email} />
           </section>
 
-          <section className="rounded-sm border border-smoke bg-ink-soft p-6">
+          <section>
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-mono text-xs uppercase tracking-[0.25em] text-bone">Shipping address</h2>
-              <span className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">
-                Speeds up checkout
-              </span>
+              <h2 className="text-mono text-xs uppercase tracking-[0.25em] text-bone">Address book</h2>
+              <span className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">Speeds up checkout</span>
             </div>
-            <AddressForm address={user?.address} />
+            <AddressBook addresses={addresses} />
           </section>
         </div>
       </div>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Search } from "lucide-react";
 import { useCart, cartCount } from "@/lib/shop/cart-store";
 import { useWishlist } from "@/lib/shop/wishlist-store";
 import { primaryNav, secondaryNav } from "@/lib/shop/nav";
@@ -103,6 +103,9 @@ export function SiteHeader() {
               className="link-underline hidden text-mono text-[0.7rem] uppercase tracking-[0.25em] text-bone md:inline"
             >
               The Lab
+            </Link>
+            <Link href="/search" aria-label="Search" className="hidden text-bone transition-colors hover:text-acid md:inline-flex">
+              <Search className="h-4 w-4" />
             </Link>
             <ThemeToggle className="hidden md:flex" />
             <AccountNav />

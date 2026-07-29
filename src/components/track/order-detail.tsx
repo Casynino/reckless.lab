@@ -40,6 +40,7 @@ export function OrderDetail({ order }: { order: Order }) {
         <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-mono text-[0.65rem] uppercase tracking-[0.15em] text-ash">
           <span>Tracking · {order.tracking}</span>
           <span>Placed · {new Date(order.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
+          {order.courier && <span className="text-bone-dim">Courier · {order.courier}{order.courierTracking ? ` (${order.courierTracking})` : ""}</span>}
         </div>
 
         {/* Vertical timeline */}

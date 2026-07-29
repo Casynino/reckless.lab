@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Search, X, Phone, MapPin, AlertTriangle } from "lucide-react";
 import type { Order, OrderState } from "@/lib/orders/types";
@@ -211,6 +212,13 @@ function OrderRow({ order, open, onToggle }: { order: Order; open: boolean; onTo
                     <span className="figure text-lg text-bone">{formatPrice(order.total)}</span>
                   </div>
                 </div>
+
+                <Link
+                  href={`/admin/orders/${order.id}`}
+                  className="block border border-smoke py-2.5 text-center text-mono text-[0.6rem] uppercase tracking-[0.2em] text-bone-dim transition-colors hover:border-bone hover:text-bone"
+                >
+                  Manage · courier + packing slip →
+                </Link>
 
                 <QuickAction order={order} />
               </div>

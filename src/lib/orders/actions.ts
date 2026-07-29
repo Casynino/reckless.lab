@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/session-cookies";
-import { updateOrderState, createOrder } from "./store";
+import { updateOrderState, createOrder, setCourierTracking } from "./store";
 import { incrementCouponUsage } from "@/lib/promo/store";
 import type { OrderLine, OrderState } from "./types";
 
@@ -15,6 +15,16 @@ export async function updateOrderStateAction(orderId: string, state: OrderState)
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
   revalidatePath("/admin/analytics");
+  return { ok: true };
+}
+
+/** Admin: assign a courier + courier tracking number. */
+export async function setCourierAction(orderId: string, courier: string, tracking: string) {
+  const session = await getSession();
+  if (!session || session.role !== "admin") return { error: "Not authorised." };
+  await setCourierTracking(orderId, courier, tracking);
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${orderId}`);
   return { ok: true };
 }
 

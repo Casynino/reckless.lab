@@ -264,6 +264,8 @@ model Order {
   shipping      Int
   discount      Int          @default(0)
   total         Int
+  courier       String?
+  courierTracking String?
   state         OrderState   @default(NEW)
   items         OrderItem[]
   events        OrderEvent[]

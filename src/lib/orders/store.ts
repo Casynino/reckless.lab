@@ -58,6 +58,8 @@ function toOrder(o: OrderRow): Order {
     discount: o.discount,
     couponCode: o.couponCode ?? undefined,
     total: o.total,
+    courier: o.courier ?? undefined,
+    courierTracking: o.courierTracking ?? undefined,
     state: toAppState(o.state),
     history: o.events.map((e) => ({ state: toAppState(e.state), at: e.at.toISOString() })),
     createdAt: o.createdAt.toISOString(),
@@ -152,6 +154,14 @@ export async function createOrder(
     include: orderInclude,
   });
   return toOrder(row);
+}
+
+/** Admin: attach a courier + courier tracking number to an order. */
+export async function setCourierTracking(id: string, courier: string, tracking: string) {
+  await db.order.update({
+    where: { id },
+    data: { courier: courier.trim() || null, courierTracking: tracking.trim() || null },
+  });
 }
 
 /** Advance / override an order's state and append a tracking event. */

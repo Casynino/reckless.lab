@@ -65,6 +65,8 @@ export interface Order {
   discount: number;
   couponCode?: string;
   total: number;
+  courier?: string;
+  courierTracking?: string;
   state: OrderState;
   history: OrderEvent[];
   createdAt: string;
