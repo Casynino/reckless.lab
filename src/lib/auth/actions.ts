@@ -32,7 +32,10 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   }
 
   await setSession({ sub: user.id, email: user.email, name: user.name, role: user.role });
-  redirect(next ?? (user.role === "admin" ? "/admin" : "/account"));
+  // Admins always land in the HQ — a customer-area `next` (e.g. from tapping
+  // "Account") must never route an admin to the customer dashboard.
+  if (user.role === "admin") redirect(next && next.startsWith("/admin") ? next : "/admin");
+  redirect(next ?? "/account");
 }
 
 /** Register a customer, then go to /account. */

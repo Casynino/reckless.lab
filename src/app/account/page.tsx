@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function AccountPage() {
   const session = await getSession();
   if (!session) redirect("/login?next=/account");
+  if (session.role === "admin") redirect("/admin");
 
   const [orders, addresses, allProducts] = await Promise.all([
     listOrdersForEmail(session.email),
