@@ -27,9 +27,9 @@ export function ProductGallery({ media, name }: { media: MediaAsset[]; name: str
 
   return (
     <>
-      <div className="flex flex-col-reverse gap-3 md:flex-row">
-        {/* Thumbnails */}
-        <div className="flex gap-3 md:flex-col">
+      <div className="flex min-w-0 flex-col-reverse gap-3 md:flex-row">
+        {/* Thumbnails — scroll horizontally on mobile instead of overflowing */}
+        <div className="flex gap-3 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:pb-0">
           {media.map((m, i) => (
             <button
               key={i}

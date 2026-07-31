@@ -93,11 +93,14 @@ html {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
+  /* Kill any horizontal overflow app-wide (iOS needs it on <html>). `clip`
+     instead of `hidden` so it never breaks position: sticky sections. */
+  overflow-x: clip;
 }
 
 body {
   font-family: var(--font-sans);
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--color-ink);
   color: var(--color-bone);
 }
