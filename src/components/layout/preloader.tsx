@@ -48,6 +48,15 @@ export function Preloader() {
     // Plays on every full page load / reload. It does NOT replay on in-app
     // navigation because this lives in the root layout, which Next.js keeps
     // mounted across route changes.
+    //
+    // Show it ONCE per browser session. After that, every load and in-app
+    // navigation is instant — no gate, no flash, no layout shift.
+    try {
+      if (sessionStorage.getItem("rl-intro-seen")) return; // already shown → render nothing
+      sessionStorage.setItem("rl-intro-seen", "1");
+    } catch {
+      /* storage blocked (private mode) — fall through and show it */
+    }
     setActive(true);
     document.body.style.overflow = "hidden";
 

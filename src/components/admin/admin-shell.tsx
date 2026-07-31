@@ -136,6 +136,16 @@ export function AdminShell({
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-acid/15 font-display text-xs text-acid">{initial}</div>
               <span className="hidden text-mono text-[0.65rem] uppercase tracking-[0.15em] text-bone sm:inline">{adminName}</span>
             </div>
+            {/* Logout — always reachable, incl. mobile where the sidebar is hidden */}
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                aria-label="Sign out"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-smoke text-ash transition-colors hover:border-acid hover:text-acid md:hidden"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </form>
           </div>
         </div>
 
