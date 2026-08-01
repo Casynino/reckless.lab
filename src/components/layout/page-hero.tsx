@@ -21,14 +21,14 @@ export function PageHero({
 }) {
   if (image) {
     return (
-      <header className="relative flex h-[64vh] min-h-[440px] items-end overflow-hidden bg-ink">
+      <header className="relative flex min-h-[70vh] flex-col justify-end overflow-hidden bg-ink pt-32">
         <Parallax speed={0.2} className="absolute inset-0 -top-[15%] h-[130%]">
           <SmartImage src={image} alt={title} fill priority sizes="100vw" className="object-cover" style={{ objectPosition: focus }} />
         </Parallax>
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(10,10,11,0.94)_0%,rgba(10,10,11,0.15)_58%,rgba(10,10,11,0.45)_100%)]" />
-        <div className="container-edge relative z-10 pb-14 md:pb-20">
+        <div className="container-edge relative z-10 w-full pb-14 md:pb-20">
           <span className="eyebrow" style={{ color: "var(--color-onphoto-dim)" }}>{code}</span>
-          <SplitText as="h1" text={title} className="mt-4 font-display display-hero text-onphoto" />
+          <SplitText as="h1" text={title} className="mt-4 font-display display-xl text-onphoto" />
           {tagline && (
             <Reveal delay={0.15}>
               <p className="mt-5 max-w-xl text-lg text-onphoto-dim">{tagline}</p>

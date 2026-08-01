@@ -19,6 +19,14 @@ async function requireAdmin() {
   return s?.role === "admin";
 }
 
+/** A "YYYY-MM-DD" expiry means valid THROUGH that day — end at 23:59:59.999 UTC,
+ *  not the very first instant (which would make same-day codes dead on arrival). */
+function endOfDay(dateStr: string) {
+  const d = new Date(dateStr);
+  d.setUTCHours(23, 59, 59, 999);
+  return d;
+}
+
 export async function createCouponAction(input: {
   code: string;
   type: CouponType;
@@ -41,7 +49,7 @@ export async function createCouponAction(input: {
       minSubtotal: input.minSubtotal ?? 0,
       firstOrderOnly: input.firstOrderOnly ?? false,
       usageLimit: input.usageLimit ?? null,
-      expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+      expiresAt: input.expiresAt ? endOfDay(input.expiresAt) : null,
     });
   } catch {
     return { error: "That code already exists." };

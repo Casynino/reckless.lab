@@ -15,5 +15,9 @@ export async function setStockAction(updates: { sku: string; qty: number }[]) {
   revalidatePath("/admin/products");
   revalidatePath("/admin");
   revalidatePath("/admin/analytics");
+  // Storefront reflects live stock too — product/collection/search/home pages
+  // are statically generated, so without this a "set to 0" never shows as sold
+  // out on the site. Revalidating the root layout refreshes every storefront route.
+  revalidatePath("/", "layout");
   return { ok: true };
 }
