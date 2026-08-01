@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-display uppercase leading-none tracking-tight", className)}>
-      Reckless<span className="ml-[0.28em] font-normal text-fog">Laboratory</span>
+      Reckless<span className="ml-[0.28em] hidden font-normal text-fog xs:inline">Laboratory</span>
     </span>
   );
 }

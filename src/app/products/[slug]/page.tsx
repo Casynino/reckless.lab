@@ -11,6 +11,11 @@ import { ProductEditorial } from "@/components/product/product-editorial";
 import { SplitText } from "@/components/motion/split-text";
 import { ChapterTag } from "@/components/about/chapter-rail";
 
+// Stock is dynamic. The admin inventory action revalidates this path on every
+// change, but keep a short ISR window as a backstop so live stock (and the
+// "Sold Out" state) can never stay stale for more than a couple of minutes.
+export const revalidate = 120;
+
 export async function generateStaticParams() {
   const products = await getAllProducts();
   return products.map((p) => ({ slug: p.slug }));

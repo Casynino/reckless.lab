@@ -5,6 +5,11 @@ import type { CollectionSlug } from "@/lib/types";
 import { PageHero } from "@/components/layout/page-hero";
 import { CollectionView } from "@/components/product/collection-view";
 
+// Backstop ISR so per-product stock shown in the collection grid self-heals
+// even if an on-demand revalidation is ever missed. (Admin edits revalidate
+// immediately.)
+export const revalidate = 120;
+
 export async function generateStaticParams() {
   const collections = await getAllCollections();
   return collections.map((c) => ({ slug: c.slug }));
