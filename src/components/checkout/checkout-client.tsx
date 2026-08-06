@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Truck, Clock, Sparkles, Info, Plus, Pencil, ArrowLeft } from "lucide-react";
@@ -82,10 +83,14 @@ export function CheckoutClient({
   const [form, setForm] = useState<ShippingAddress>(() =>
     defaultAddr ? addrToForm(defaultAddr, userEmail) : { ...EMPTY, email: userEmail ?? "" },
   );
+  const router = useRouter();
   // "saved" = choosing from the address book; "form" = typing a new/edited one.
   const [mode, setMode] = useState<"saved" | "form">(savedAddresses.length ? "saved" : "form");
   const [selectedAddrId, setSelectedAddrId] = useState<string | null>(defaultAddr?.id ?? null);
-  const [saveNew, setSaveNew] = useState(false);
+  // The saved-address id being edited (null = a brand-new address).
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [addrSave, setAddrSave] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [addrErr, setAddrErr] = useState("");
   const [touched, setTouched] = useState(false);
 
   function pickAddress(a: SavedAddress) {
@@ -94,17 +99,54 @@ export function CheckoutClient({
   }
   function editAddress(a: SavedAddress) {
     pickAddress(a);
-    setSaveNew(false);
+    setEditingId(a.id);
+    setAddrSave("idle");
+    setAddrErr("");
     setMode("form");
   }
   function newAddress() {
     setSelectedAddrId(null);
+    setEditingId(null);
     setForm({ ...EMPTY, email: userEmail ?? "" });
-    setSaveNew(true);
+    setAddrSave("idle");
+    setAddrErr("");
     setMode("form");
   }
   function backToSaved() {
     if (!selectedAddrId && defaultAddr) pickAddress(defaultAddr);
+    setMode("saved");
+  }
+
+  // Persist the address to the customer's book — updates when editing, creates
+  // when new. Then return to the picker with it selected.
+  async function saveAddressToBook() {
+    setAddrErr("");
+    setAddrSave("saving");
+    const res = await saveAddressAction({
+      id: editingId ?? undefined,
+      fullName: form.fullName,
+      phone: form.phone,
+      line1: form.address1,
+      line2: form.address2 || undefined,
+      city: form.city,
+      region: form.region || undefined,
+      postalCode: form.postalCode || undefined,
+      countryCode: form.countryCode,
+    }).catch(() => null);
+    if (!res) {
+      setAddrSave("error");
+      setAddrErr("Couldn't save. Try again.");
+      return;
+    }
+    if ("error" in res) {
+      setAddrSave("error");
+      setAddrErr(res.error ?? "Couldn't save. Try again.");
+      return;
+    }
+    setAddrSave("saved");
+    const newId = res.id;
+    if (newId) setSelectedAddrId(newId);
+    router.refresh();
     setMode("saved");
   }
   const [pw, setPw] = useState("");
@@ -197,19 +239,6 @@ export function CheckoutClient({
     if (!res || "error" in res) {
       setStatus("error");
       return;
-    }
-    // Save this address to the account for next time (opt-in, logged-in only).
-    if (loggedIn && mode === "form" && saveNew) {
-      void saveAddressAction({
-        fullName: form.fullName,
-        phone: form.phone,
-        line1: form.address1,
-        line2: form.address2 || undefined,
-        city: form.city,
-        region: form.region || undefined,
-        postalCode: form.postalCode || undefined,
-        countryCode: form.countryCode,
-      }).catch(() => {});
     }
     // Use the real (server) order reference in the WhatsApp hand-off.
     const waUrl = buildWhatsAppUrl({ ...draft, reference: res.reference });
@@ -378,10 +407,23 @@ export function CheckoutClient({
               ))}
 
               {loggedIn && (
-                <label className="col-span-2 flex cursor-pointer items-center gap-2 text-sm text-fog">
-                  <input type="checkbox" checked={saveNew} onChange={(e) => setSaveNew(e.target.checked)} className="accent-acid" />
-                  Save this address to my account for next time
-                </label>
+                <div className="col-span-2 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={saveAddressToBook}
+                    disabled={addrSave === "saving"}
+                    className="border border-smoke px-6 py-2.5 text-mono text-[0.6rem] uppercase tracking-[0.2em] text-bone transition-colors hover:border-bone disabled:opacity-50"
+                  >
+                    {addrSave === "saving" ? "Saving…" : editingId ? "Save changes" : "Save to my addresses"}
+                  </button>
+                  {addrSave === "saved" && (
+                    <span className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-acid">✓ Saved to your account</span>
+                  )}
+                  {addrErr && <span className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-acid">{addrErr}</span>}
+                  <span className="w-full text-[0.7rem] leading-relaxed text-ash">
+                    Saving updates your address book. You can still place the order without saving.
+                  </span>
+                </div>
               )}
             </div>
           </div>

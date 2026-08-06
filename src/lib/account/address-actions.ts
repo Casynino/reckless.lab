@@ -16,11 +16,13 @@ function valid(a: AddressInput) {
 export async function saveAddressAction(input: AddressInput & { id?: string }) {
   const userId = await uid();
   if (!userId) return { error: "Please sign in." };
-  if (!valid(input)) return { error: "Fill in name, address, city and country." };
+  if (!valid(input)) return { error: "Fill in name, street, city and country." };
+  let id = input.id;
   if (input.id) await updateAddress(userId, input.id, input);
-  else await createAddress(userId, input);
+  else id = (await createAddress(userId, input)).id;
   revalidatePath("/account");
-  return { ok: true };
+  revalidatePath("/checkout");
+  return { ok: true, id };
 }
 
 export async function deleteAddressAction(id: string) {
