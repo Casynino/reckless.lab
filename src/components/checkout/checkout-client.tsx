@@ -3,16 +3,18 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Truck, Clock, Sparkles, Info } from "lucide-react";
+import { ArrowRight, Truck, Clock, Sparkles, Info, Plus, Pencil, ArrowLeft } from "lucide-react";
 import { useCart, cartSubtotal } from "@/lib/shop/cart-store";
 import { formatPrice } from "@/lib/shop/format";
-import { shippingCountries, quoteShipping, TBC_SHIPPING_MESSAGE, type ShippingQuote, type ShippingRegion } from "@/lib/shop/shipping";
+import { shippingCountries, quoteShipping, countryName, TBC_SHIPPING_MESSAGE, type ShippingQuote, type ShippingRegion } from "@/lib/shop/shipping";
 import { buildOrderDraft, buildWhatsAppUrl, buildOrderMessage } from "@/lib/shop/whatsapp";
 import { placeOrderAction } from "@/lib/orders/actions";
 import { applyCouponAction } from "@/lib/promo/actions";
 import { createAccountFromCheckoutAction } from "@/lib/auth/actions";
+import { saveAddressAction } from "@/lib/account/address-actions";
 import { shopConfig } from "@/lib/shop/config";
 import type { ShippingAddress } from "@/lib/types";
+import type { SavedAddress } from "@/lib/account/addresses";
 import { SmartImage } from "@/components/ui/smart-image";
 
 const EMPTY: ShippingAddress = {
@@ -27,24 +29,84 @@ const EMPTY: ShippingAddress = {
   countryCode: shopConfig.contact.homeCountry,
 };
 
-const FIELDS: { key: keyof ShippingAddress; label: string; required?: boolean; type?: string; half?: boolean }[] = [
+type FieldDef = { key: keyof ShippingAddress; label: string; required?: boolean; type?: string; half?: boolean; placeholder?: string };
+
+// Contact first, then Country, then the address — top-down so you never repeat
+// the country. Labels/placeholders guide a city → area hierarchy.
+const CONTACT_FIELDS: FieldDef[] = [
   { key: "fullName", label: "Full name", required: true },
   { key: "email", label: "Email", required: true, type: "email" },
   { key: "phone", label: "Phone (WhatsApp)", required: true },
-  { key: "address1", label: "Address", required: true },
-  { key: "address2", label: "Apartment, suite (optional)" },
-  { key: "city", label: "City", required: true, half: true },
-  { key: "region", label: "Region / State", half: true },
-  { key: "postalCode", label: "Postal code", half: true },
 ];
+const ADDRESS_FIELDS: FieldDef[] = [
+  { key: "city", label: "City / Town", required: true, half: true, placeholder: "e.g. Dar es Salaam" },
+  { key: "region", label: "Area / District", half: true, placeholder: "e.g. Kinondoni, Mbezi Beach" },
+  { key: "address1", label: "Street / neighbourhood", required: true, placeholder: "e.g. Mbezi, Goigi" },
+  { key: "address2", label: "House / apartment (optional)" },
+  { key: "postalCode", label: "Postal code (optional)", half: true },
+];
+const REQUIRED_FIELDS = [...CONTACT_FIELDS, ...ADDRESS_FIELDS].filter((f) => f.required);
+
+/** Map a saved address into the checkout form shape (email comes from the account). */
+function addrToForm(a: SavedAddress, email?: string): ShippingAddress {
+  return {
+    fullName: a.fullName,
+    email: email ?? "",
+    phone: a.phone,
+    address1: a.line1,
+    address2: a.line2 ?? "",
+    city: a.city,
+    region: a.region ?? "",
+    postalCode: a.postalCode ?? "",
+    countryCode: a.countryCode,
+  };
+}
 
 type Placed = { reference: string; tracking: string; waUrl: string };
 
-export function CheckoutClient({ loggedIn = false, regions }: { loggedIn?: boolean; regions: ShippingRegion[] }) {
+export function CheckoutClient({
+  loggedIn = false,
+  regions,
+  savedAddresses = [],
+  userEmail,
+}: {
+  loggedIn?: boolean;
+  regions: ShippingRegion[];
+  savedAddresses?: SavedAddress[];
+  userEmail?: string;
+}) {
   const lines = useCart((s) => s.lines);
   const clearCart = useCart((s) => s.clear);
-  const [form, setForm] = useState<ShippingAddress>(EMPTY);
+
+  const defaultAddr = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0];
+  const [form, setForm] = useState<ShippingAddress>(() =>
+    defaultAddr ? addrToForm(defaultAddr, userEmail) : { ...EMPTY, email: userEmail ?? "" },
+  );
+  // "saved" = choosing from the address book; "form" = typing a new/edited one.
+  const [mode, setMode] = useState<"saved" | "form">(savedAddresses.length ? "saved" : "form");
+  const [selectedAddrId, setSelectedAddrId] = useState<string | null>(defaultAddr?.id ?? null);
+  const [saveNew, setSaveNew] = useState(false);
   const [touched, setTouched] = useState(false);
+
+  function pickAddress(a: SavedAddress) {
+    setSelectedAddrId(a.id);
+    setForm(addrToForm(a, userEmail));
+  }
+  function editAddress(a: SavedAddress) {
+    pickAddress(a);
+    setSaveNew(false);
+    setMode("form");
+  }
+  function newAddress() {
+    setSelectedAddrId(null);
+    setForm({ ...EMPTY, email: userEmail ?? "" });
+    setSaveNew(true);
+    setMode("form");
+  }
+  function backToSaved() {
+    if (!selectedAddrId && defaultAddr) pickAddress(defaultAddr);
+    setMode("saved");
+  }
   const [pw, setPw] = useState("");
   const [acct, setAcct] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [acctErr, setAcctErr] = useState("");
@@ -88,7 +150,7 @@ export function CheckoutClient({ loggedIn = false, regions }: { loggedIn?: boole
 
   const valid = useMemo(
     () =>
-      FIELDS.filter((f) => f.required).every((f) => form[f.key]?.toString().trim()) &&
+      REQUIRED_FIELDS.every((f) => form[f.key]?.toString().trim()) &&
       form.email.includes("@") &&
       lines.length > 0,
     [form, lines],
@@ -135,6 +197,19 @@ export function CheckoutClient({ loggedIn = false, regions }: { loggedIn?: boole
     if (!res || "error" in res) {
       setStatus("error");
       return;
+    }
+    // Save this address to the account for next time (opt-in, logged-in only).
+    if (loggedIn && mode === "form" && saveNew) {
+      void saveAddressAction({
+        fullName: form.fullName,
+        phone: form.phone,
+        line1: form.address1,
+        line2: form.address2 || undefined,
+        city: form.city,
+        region: form.region || undefined,
+        postalCode: form.postalCode || undefined,
+        countryCode: form.countryCode,
+      }).catch(() => {});
     }
     // Use the real (server) order reference in the WhatsApp hand-off.
     const waUrl = buildWhatsAppUrl({ ...draft, reference: res.reference });
@@ -247,83 +322,70 @@ export function CheckoutClient({ loggedIn = false, regions }: { loggedIn?: boole
           send payment instructions directly.
         </p>
 
-        <div className="mt-10 grid grid-cols-2 gap-4">
-          {FIELDS.map((f) => {
-            const invalid = touched && f.required && !form[f.key]?.toString().trim();
-            return (
-              <div key={f.key} className={f.half ? "col-span-1" : "col-span-2"}>
-                <label className="mb-1.5 block text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
-                  {f.label}
-                  {f.required && <span className="text-acid"> *</span>}
-                </label>
-                <input
-                  type={f.type ?? "text"}
-                  value={form[f.key] ?? ""}
-                  onChange={(e) => set(f.key, e.target.value)}
-                  className={`w-full border-b bg-transparent py-2.5 text-bone placeholder:text-ash/60 focus:outline-none ${
-                    invalid ? "border-acid" : "border-smoke focus:border-bone"
-                  }`}
-                />
-              </div>
-            );
-          })}
-
-          {/* Country */}
-          <div className="col-span-2">
-            <label className="mb-1.5 block text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
-              Country / Region <span className="text-acid">*</span>
-            </label>
-            <select
-              value={form.countryCode}
-              onChange={(e) => set("countryCode", e.target.value)}
-              className="w-full border-b border-smoke bg-ink py-2.5 text-bone focus:border-bone focus:outline-none"
-            >
-              {shippingCountries.map((c) => (
-                <option key={c.code} value={c.code} className="bg-ink text-bone">
-                  {c.name}
-                </option>
-              ))}
-            </select>
+        {savedAddresses.length > 0 && mode === "saved" ? (
+          /* Returning customer — pick a saved address, no retyping */
+          <div className="mt-8">
+            <SavedAddressPicker
+              addresses={savedAddresses}
+              selectedId={selectedAddrId}
+              onSelect={pickAddress}
+              onEdit={editAddress}
+              onNew={newAddress}
+            />
+            <div className="mt-6">
+              <ShippingMethodPanel quote={quote} />
+            </div>
           </div>
-
-          {/* Live shipping method + ETA — updates the instant a country is picked */}
-          <div className="col-span-2">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={quote.regionId + String(quote.freeShipping)}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.25 }}
-                className="grid gap-px overflow-hidden rounded-sm border border-smoke bg-smoke sm:grid-cols-3"
+        ) : (
+          <div className="mt-8">
+            {savedAddresses.length > 0 && (
+              <button
+                onClick={backToSaved}
+                className="mb-5 inline-flex items-center gap-2 text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash transition-colors hover:text-bone"
               >
-                <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
-                  <Truck className="h-4 w-4 shrink-0 text-acid" />
-                  <div className="min-w-0">
-                    <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Courier</p>
-                    <p className="truncate text-sm text-bone">{quote.courier}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
-                  <Clock className="h-4 w-4 shrink-0 text-acid" />
-                  <div className="min-w-0">
-                    <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Estimated delivery</p>
-                    <p className="text-sm leading-tight text-bone">{quote.eta}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
-                  <Sparkles className="h-4 w-4 shrink-0 text-acid" />
-                  <div className="min-w-0">
-                    <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Shipping fee</p>
-                    <p className={`text-sm ${quote.freeShipping ? "text-acid" : "text-bone"}`}>
-                      {quote.tbc ? "To be confirmed" : quote.fee === 0 ? "FREE" : formatPrice(quote.fee)}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+                <ArrowLeft className="h-3.5 w-3.5" /> Use a saved address
+              </button>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              {CONTACT_FIELDS.map((f) => (
+                <AddressField key={f.key} f={f} value={form[f.key] ?? ""} touched={touched} onChange={(v) => set(f.key, v)} />
+              ))}
+
+              {/* Country — picked once, drives the shipping quote */}
+              <div className="col-span-2">
+                <label className="mb-1.5 block text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
+                  Country <span className="text-acid">*</span>
+                </label>
+                <select
+                  value={form.countryCode}
+                  onChange={(e) => set("countryCode", e.target.value)}
+                  className="w-full border-b border-smoke bg-ink py-2.5 text-bone focus:border-bone focus:outline-none"
+                >
+                  {shippingCountries.map((c) => (
+                    <option key={c.code} value={c.code} className="bg-ink text-bone">
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-span-2">
+                <ShippingMethodPanel quote={quote} />
+              </div>
+
+              {ADDRESS_FIELDS.map((f) => (
+                <AddressField key={f.key} f={f} value={form[f.key] ?? ""} touched={touched} onChange={(v) => set(f.key, v)} />
+              ))}
+
+              {loggedIn && (
+                <label className="col-span-2 flex cursor-pointer items-center gap-2 text-sm text-fog">
+                  <input type="checkbox" checked={saveNew} onChange={(e) => setSaveNew(e.target.checked)} className="accent-acid" />
+                  Save this address to my account for next time
+                </label>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Payment note */}
         <div className="mt-10 border border-smoke bg-ink-soft p-5">
@@ -457,6 +519,153 @@ function Row({ label, value, accent }: { label: string; value: string; accent?: 
     <div className="flex items-center justify-between">
       <span className="text-fog">{label}</span>
       <span className={accent ? "text-acid" : "text-bone"}>{value}</span>
+    </div>
+  );
+}
+
+function AddressField({
+  f,
+  value,
+  touched,
+  onChange,
+}: {
+  f: FieldDef;
+  value: string;
+  touched: boolean;
+  onChange: (v: string) => void;
+}) {
+  const invalid = touched && f.required && !value.toString().trim();
+  return (
+    <div className={f.half ? "col-span-1" : "col-span-2"}>
+      <label className="mb-1.5 block text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
+        {f.label}
+        {f.required && <span className="text-acid"> *</span>}
+      </label>
+      <input
+        type={f.type ?? "text"}
+        value={value}
+        placeholder={f.placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full border-b bg-transparent py-2.5 text-bone placeholder:text-ash/60 focus:outline-none ${
+          invalid ? "border-acid" : "border-smoke focus:border-bone"
+        }`}
+      />
+    </div>
+  );
+}
+
+/** Live courier / ETA / fee, updating the instant the country changes. */
+function ShippingMethodPanel({ quote }: { quote: ShippingQuote }) {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={quote.regionId + String(quote.freeShipping)}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.25 }}
+        className="grid gap-px overflow-hidden rounded-sm border border-smoke bg-smoke sm:grid-cols-3"
+      >
+        <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
+          <Truck className="h-4 w-4 shrink-0 text-acid" />
+          <div className="min-w-0">
+            <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Courier</p>
+            <p className="truncate text-sm text-bone">{quote.courier}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
+          <Clock className="h-4 w-4 shrink-0 text-acid" />
+          <div className="min-w-0">
+            <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Estimated delivery</p>
+            <p className="text-sm leading-tight text-bone">{quote.eta}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
+          <Sparkles className="h-4 w-4 shrink-0 text-acid" />
+          <div className="min-w-0">
+            <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Shipping fee</p>
+            <p className={`text-sm ${quote.freeShipping ? "text-acid" : "text-bone"}`}>
+              {quote.tbc ? "To be confirmed" : quote.fee === 0 ? "FREE" : formatPrice(quote.fee)}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+/** Returning-customer address book at checkout — pick, edit, or add new. */
+function SavedAddressPicker({
+  addresses,
+  selectedId,
+  onSelect,
+  onEdit,
+  onNew,
+}: {
+  addresses: SavedAddress[];
+  selectedId: string | null;
+  onSelect: (a: SavedAddress) => void;
+  onEdit: (a: SavedAddress) => void;
+  onNew: () => void;
+}) {
+  return (
+    <div>
+      <p className="mb-3 text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">Deliver to</p>
+      <div className="space-y-3">
+        {addresses.map((a) => {
+          const sel = a.id === selectedId;
+          return (
+            <div
+              key={a.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => onSelect(a)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelect(a);
+                }
+              }}
+              className={`flex cursor-pointer items-start gap-3 rounded-sm border p-4 transition-colors ${
+                sel ? "border-acid bg-acid/5" : "border-smoke hover:border-ash/60"
+              }`}
+            >
+              <span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${sel ? "border-acid" : "border-smoke"}`}>
+                {sel && <span className="h-2 w-2 rounded-full bg-acid" />}
+              </span>
+              <div className="min-w-0 flex-1 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-bone">{a.fullName}</span>
+                  {a.isDefault && (
+                    <span className="rounded-full border border-smoke px-2 py-0.5 text-mono text-[0.5rem] uppercase tracking-[0.15em] text-ash">
+                      Default
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-fog">{a.line1}{a.line2 ? `, ${a.line2}` : ""}</p>
+                <p className="text-fog">{[a.city, a.region, a.postalCode].filter(Boolean).join(", ")}</p>
+                <p className="text-fog">{countryName(a.countryCode)} · {a.phone}</p>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(a);
+                }}
+                aria-label="Edit this address"
+                className="shrink-0 p-1 text-ash transition-colors hover:text-bone"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <button
+        onClick={onNew}
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-sm border border-dashed border-smoke py-4 text-mono text-[0.65rem] uppercase tracking-[0.2em] text-ash transition-colors hover:border-bone hover:text-bone"
+      >
+        <Plus className="h-3.5 w-3.5" /> Deliver to a new address
+      </button>
     </div>
   );
 }
