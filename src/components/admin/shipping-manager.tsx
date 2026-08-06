@@ -11,6 +11,7 @@ import {
   seedShippingRatesAction,
 } from "@/lib/shop/shipping-actions";
 import { formatPrice } from "@/lib/shop/format";
+import { shippingCountries, countryName } from "@/lib/shop/shipping";
 
 export type ShippingRow = {
   id: string;
@@ -27,7 +28,7 @@ export type ShippingRow = {
 
 const EMPTY = {
   label: "",
-  countries: "",
+  countries: [] as string[],
   courier: "",
   eta: "",
   flatRate: "",
@@ -54,7 +55,7 @@ export function ShippingManager({ rates }: { rates: ShippingRow[] }) {
     setErr("");
     setF({
       label: r.label,
-      countries: r.countries.join(", "),
+      countries: r.countries,
       courier: r.courier,
       eta: r.eta,
       flatRate: String(r.flatRate),
@@ -69,7 +70,7 @@ export function ShippingManager({ rates }: { rates: ShippingRow[] }) {
     setErr("");
     const input = {
       label: f.label,
-      countries: f.countries,
+      countries: f.countries.join(","),
       courier: f.courier,
       eta: f.eta,
       flatRate: Number(f.flatRate) || 0,
@@ -113,9 +114,18 @@ export function ShippingManager({ rates }: { rates: ShippingRow[] }) {
           <Field label="Region / market name">
             <input value={f.label} onChange={(e) => setF({ ...f, label: e.target.value })} placeholder="United States" className={input} />
           </Field>
-          <Field label="Countries (ISO codes, comma-separated)">
-            <input value={f.countries} onChange={(e) => setF({ ...f, countries: e.target.value.toUpperCase() })} placeholder="US, CA" className={input} />
-          </Field>
+          {f.isDefault ? (
+            <div className="rounded-sm border border-smoke/60 bg-ink px-3 py-2.5 text-xs leading-relaxed text-fog">
+              This is the catch-all — it covers <span className="text-bone">every country you haven’t added its own rate for</span>. No need to pick countries.
+            </div>
+          ) : (
+            <Field label="Countries — pick from the list">
+              <CountryPicker value={f.countries} onChange={(v) => setF({ ...f, countries: v })} />
+              <p className="mt-1.5 text-[0.7rem] leading-relaxed text-ash">
+                Any country you don’t add here is charged the Rest of World rate automatically.
+              </p>
+            </Field>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <Field label="Courier / method">
               <input value={f.courier} onChange={(e) => setF({ ...f, courier: e.target.value })} placeholder="DHL Express" className={input} />
@@ -249,5 +259,49 @@ function Tag({ children }: { children: React.ReactNode }) {
     <span className="rounded-full border border-smoke px-2 py-0.5 text-mono text-[0.5rem] uppercase tracking-[0.15em] text-ash">
       {children}
     </span>
+  );
+}
+
+/**
+ * Pick countries the same way a customer does at checkout — a familiar dropdown
+ * of country names — instead of typing ISO codes. Selected countries show as
+ * removable chips. Codes stay the storage format underneath.
+ */
+function CountryPicker({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const options = shippingCountries.filter((c) => c.code !== "OTHER" && !value.includes(c.code));
+  return (
+    <div>
+      {value.length > 0 && (
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          {value.map((code) => (
+            <span key={code} className="flex items-center gap-1.5 rounded-full border border-smoke bg-carbon px-2.5 py-1 text-xs text-bone">
+              {countryName(code)}
+              <button
+                type="button"
+                onClick={() => onChange(value.filter((c) => c !== code))}
+                aria-label={`Remove ${countryName(code)}`}
+                className="text-ash transition-colors hover:text-acid"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <select
+        value=""
+        onChange={(e) => {
+          if (e.target.value) onChange([...value, e.target.value]);
+        }}
+        className={input}
+      >
+        <option value="">{value.length ? "Add another country…" : "Choose a country…"}</option>
+        {options.map((c) => (
+          <option key={c.code} value={c.code}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
