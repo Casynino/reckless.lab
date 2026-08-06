@@ -393,6 +393,32 @@ model Coupon {
   createdAt      DateTime   @default(now())
 }
 
+// ─────────────────────────────── Shipping ───────────────────────────────
+// Admin-editable rate card. Drives quoteShipping(); falls back to code
+// defaults (DEFAULT_SHIPPING_REGIONS) when the table is empty.
+model ShippingRate {
+  id            String   @id @default(cuid())
+  label         String
+  /** Comma-separated ISO country codes. Empty = the default / catch-all region. */
+  countries     String   @default("")
+  courier       String   @default("")
+  eta           String   @default("")
+  /** Flat fee charged below the free threshold (store currency, whole units). */
+  flatRate      Int      @default(0)
+  /** Subtotal at/above which shipping is free. 0 = always free. */
+  freeThreshold Int      @default(0)
+  /** Rest-of-world: fee quoted after checkout, never auto-charged. */
+  requiresQuote Boolean  @default(false)
+  /** Catch-all region for unlisted countries. */
+  isDefault     Boolean  @default(false)
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
 // ─────────────────────────────── Content ───────────────────────────────
 model Media {
   id        String    @id @default(cuid())

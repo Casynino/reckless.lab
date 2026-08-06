@@ -6,7 +6,8 @@
  *  customer dashboard, the admin order views and CSV export all read their
  *  shipping numbers from `quoteShipping()` here. To change a rate, a courier,
  *  an ETA, a free-shipping threshold, or to add a country, edit
- *  `SHIPPING_REGIONS` below — nothing in the UI or checkout flow changes.
+ *  the rate card (now admin-editable in the DB; `DEFAULT_SHIPPING_REGIONS`
+ *  below is only the fallback) — nothing in the UI or checkout flow changes.
  *
  *  The engine is deliberately shaped so future upgrades slot in behind the
  *  same `quoteShipping()` signature without rewriting any caller:
@@ -47,10 +48,12 @@ export interface ShippingRegion {
 }
 
 /**
- * The live rate card. Order matters only for the default (last) entry.
- * Everything a merchant would tune lives here — intentionally declarative.
+ * Fallback rate card, used only when the admin-editable `ShippingRate` table is
+ * empty (fresh install). Once seeded, live rates come from the database via
+ * `getShippingRegions()` and the admin can edit every value. Order matters only
+ * for the default (last) entry.
  */
-export const SHIPPING_REGIONS: ShippingRegion[] = [
+export const DEFAULT_SHIPPING_REGIONS: ShippingRegion[] = [
   {
     id: "us",
     label: "United States",
@@ -109,9 +112,10 @@ export const SHIPPING_REGIONS: ShippingRegion[] = [
   },
 ];
 
-export function regionForCountry(countryCode: string): ShippingRegion {
-  const direct = SHIPPING_REGIONS.find((r) => r.countries.includes(countryCode));
-  return direct ?? SHIPPING_REGIONS.find((r) => r.isDefault)!;
+export function regionForCountry(regions: ShippingRegion[], countryCode: string): ShippingRegion {
+  const list = regions.length ? regions : DEFAULT_SHIPPING_REGIONS;
+  const direct = list.find((r) => r.countries.includes(countryCode));
+  return direct ?? list.find((r) => r.isDefault) ?? list[list.length - 1];
 }
 
 /**
@@ -152,9 +156,13 @@ function resolveRate(region: ShippingRegion, subtotal: number): { fee: number; f
   return { fee: free ? 0 : region.flatRate, free };
 }
 
-/** THE shipping calculator. Pure + synchronous so client and server agree. */
-export function quoteShipping(countryCode: string, subtotal: number): ShippingQuote {
-  const region = regionForCountry(countryCode);
+/**
+ * THE shipping calculator. Pure + synchronous so client and server agree.
+ * Takes the (admin-editable) region list so the same function works with live
+ * DB rates on the server and the rates passed down to the checkout client.
+ */
+export function quoteShipping(regions: ShippingRegion[], countryCode: string, subtotal: number): ShippingQuote {
+  const region = regionForCountry(regions, countryCode);
   const base = {
     countryCode,
     countryName: countryName(countryCode),

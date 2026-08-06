@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/layout/page-hero";
 import { ProductAccordion } from "@/components/product/product-accordion";
 import { shopConfig } from "@/lib/shop/config";
-import { SHIPPING_REGIONS, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
+import { getShippingRegions } from "@/lib/shop/shipping-store";
 import { formatPrice } from "@/lib/shop/format";
 
 export const metadata: Metadata = {
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
   description: "Shipping, returns, sizing and how ordering works at Reckless Lab.",
 };
 
-export default function SupportPage() {
+export default async function SupportPage() {
+  const shippingRegions = await getShippingRegions();
   return (
     <div className="pb-24">
       <PageHero
@@ -38,7 +40,7 @@ export default function SupportPage() {
                 title: "Shipping rates & delivery",
                 body: (
                   <ul className="space-y-2">
-                    {SHIPPING_REGIONS.map((z) => (
+                    {shippingRegions.map((z) => (
                       <li key={z.id} className="flex items-center justify-between border-b border-smoke/60 pb-2">
                         <span>
                           {z.label} <span className="text-ash">· {z.courier}</span>

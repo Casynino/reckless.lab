@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth/session-cookies";
 import { updateOrderState, createOrder, setCourierTracking } from "./store";
 import { incrementCouponUsage } from "@/lib/promo/store";
 import { quoteShipping } from "@/lib/shop/shipping";
+import { getShippingRegions } from "@/lib/shop/shipping-store";
 import type { OrderLine, OrderState } from "./types";
 
 /** Admin: advance/override an order's state. */
@@ -55,7 +56,8 @@ export async function placeOrderAction(input: {
   // never taken from the client. The result is snapshotted onto the order so it
   // stays fixed even if the rate card changes later.
   const discount = Math.min(Math.max(0, input.discount ?? 0), input.subtotal);
-  const q = quoteShipping(input.countryCode, input.subtotal);
+  const regions = await getShippingRegions();
+  const q = quoteShipping(regions, input.countryCode, input.subtotal);
   const shipping = q.fee;
   const total = Math.max(0, input.subtotal + shipping - discount);
 

@@ -1,9 +1,11 @@
 import { PageTitle, Panel } from "@/components/admin/ui";
 import { shopConfig } from "@/lib/shop/config";
-import { SHIPPING_REGIONS, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
+import { getShippingRegions } from "@/lib/shop/shipping-store";
 import { formatPrice } from "@/lib/shop/format";
 import { getSession } from "@/lib/auth/session-cookies";
 import { ProfileForm } from "@/components/account/profile-form";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,7 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default async function AdminSettings() {
   const session = await getSession();
+  const shippingRegions = await getShippingRegions();
 
   return (
     <div>
@@ -46,7 +49,7 @@ export default async function AdminSettings() {
         </Panel>
 
         <Panel title="Shipping rates">
-          {SHIPPING_REGIONS.map((r) => (
+          {shippingRegions.map((r) => (
             <Row
               key={r.id}
               label={`${r.label} · ${r.courier}`}
@@ -59,6 +62,9 @@ export default async function AdminSettings() {
               }
             />
           ))}
+          <Link href="/admin/shipping" className="mt-3 inline-block text-mono text-[0.6rem] uppercase tracking-[0.15em] text-acid hover:underline">
+            Edit shipping rates →
+          </Link>
         </Panel>
 
         <Panel title="Access">

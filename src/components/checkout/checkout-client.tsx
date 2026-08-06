@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Truck, Clock, Sparkles, Info } from "lucide-react";
 import { useCart, cartSubtotal } from "@/lib/shop/cart-store";
 import { formatPrice } from "@/lib/shop/format";
-import { shippingCountries, quoteShipping, TBC_SHIPPING_MESSAGE, type ShippingQuote } from "@/lib/shop/shipping";
+import { shippingCountries, quoteShipping, TBC_SHIPPING_MESSAGE, type ShippingQuote, type ShippingRegion } from "@/lib/shop/shipping";
 import { buildOrderDraft, buildWhatsAppUrl, buildOrderMessage } from "@/lib/shop/whatsapp";
 import { placeOrderAction } from "@/lib/orders/actions";
 import { applyCouponAction } from "@/lib/promo/actions";
@@ -40,7 +40,7 @@ const FIELDS: { key: keyof ShippingAddress; label: string; required?: boolean; t
 
 type Placed = { reference: string; tracking: string; waUrl: string };
 
-export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
+export function CheckoutClient({ loggedIn = false, regions }: { loggedIn?: boolean; regions: ShippingRegion[] }) {
   const lines = useCart((s) => s.lines);
   const clearCart = useCart((s) => s.clear);
   const [form, setForm] = useState<ShippingAddress>(EMPTY);
@@ -67,8 +67,9 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
   const [promoErr, setPromoErr] = useState("");
 
   const subtotal = cartSubtotal(lines);
-  // Single source of truth — recomputes instantly on country or cart change.
-  const quote = useMemo(() => quoteShipping(form.countryCode, subtotal), [form.countryCode, subtotal]);
+  // Single source of truth — recomputes instantly on country or cart change,
+  // against the admin-editable rate card passed from the server.
+  const quote = useMemo(() => quoteShipping(regions, form.countryCode, subtotal), [regions, form.countryCode, subtotal]);
   const shipping = quote.tbc ? 0 : quote.fee;
   const discount = Math.min(promo?.discount ?? 0, subtotal + shipping);
   const total = Math.max(0, subtotal + shipping - discount);
@@ -104,7 +105,7 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
       return;
     }
     setStatus("placing");
-    const draft = buildOrderDraft(lines, form, Date.now());
+    const draft = buildOrderDraft(regions, lines, form, Date.now());
     const res = await placeOrderAction({
       customerName: form.fullName,
       customerEmail: form.email,
@@ -233,7 +234,7 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
     );
   }
 
-  const preview = buildOrderMessage(buildOrderDraft(lines, form, 0));
+  const preview = buildOrderMessage(buildOrderDraft(regions, lines, form, 0));
 
   return (
     <div className="container-edge grid gap-12 pt-32 pb-24 md:pt-40 lg:grid-cols-[1.2fr_1fr] lg:gap-20">

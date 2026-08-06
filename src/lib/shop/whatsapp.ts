@@ -1,7 +1,7 @@
 import type { CartLine, ShippingAddress } from "@/lib/types";
 import { shopConfig } from "./config";
 import { formatPrice } from "./format";
-import { quoteShipping } from "./shipping";
+import { quoteShipping, type ShippingRegion } from "./shipping";
 
 export interface OrderDraft {
   lines: CartLine[];
@@ -21,12 +21,13 @@ export function buildReference(seed: number): string {
 }
 
 export function buildOrderDraft(
+  regions: ShippingRegion[],
   lines: CartLine[],
   address: ShippingAddress,
   seed: number,
 ): OrderDraft {
   const subtotal = lines.reduce((n, l) => n + l.price * l.qty, 0);
-  const q = quoteShipping(address.countryCode, subtotal);
+  const q = quoteShipping(regions, address.countryCode, subtotal);
   return {
     lines,
     address,
