@@ -1,13 +1,15 @@
 import type { CartLine, ShippingAddress } from "@/lib/types";
 import { shopConfig } from "./config";
 import { formatPrice } from "./format";
-import { quoteShipping, type ShippingRegion } from "./shipping";
+import { quoteShipping, countryName, type ShippingRegion } from "./shipping";
 
 export interface OrderDraft {
   lines: CartLine[];
   address: ShippingAddress;
   subtotal: number;
   shipping: number;
+  discount?: number;
+  couponCode?: string;
   total: number;
   shippingMethod: string;
   shippingEta: string;
@@ -50,38 +52,59 @@ export function buildOrderDraft(
  */
 export function buildOrderMessage(order: OrderDraft): string {
   const { brand } = shopConfig;
+  const a = order.address;
   const L: string[] = [];
 
   L.push(`*${brand.name.toUpperCase()} — NEW ORDER*`);
-  L.push(`Ref: ${order.reference}`);
   L.push("");
-  L.push("*Items*");
-  for (const line of order.lines) {
-    L.push(`• ${line.qty}× ${line.name} — ${line.colorway} / ${line.size}`);
-    L.push(`   ${formatPrice(line.price)} each · ${line.sku}`);
-  }
+  L.push(`*Order Ref:* ${order.reference}`);
   L.push("");
-  L.push("*Summary*");
+
+  // Items — one clean labelled block per line
+  L.push("*ITEMS*");
+  order.lines.forEach((line, i) => {
+    L.push(`• ${line.qty}× ${line.name}`);
+    L.push(`  Color: ${line.colorway}`);
+    L.push(`  Size: ${line.size}`);
+    L.push(`  Price: ${formatPrice(line.price)}`);
+    L.push(`  Code: ${line.sku}`);
+    if (i < order.lines.length - 1) L.push("");
+  });
+  L.push("");
+
+  // Order summary
+  L.push("*ORDER SUMMARY*");
   L.push(`Subtotal: ${formatPrice(order.subtotal)}`);
-  L.push(`Courier: ${order.shippingMethod} — ${order.shippingEta}`);
-  if (order.shippingTbc) {
-    L.push("Shipping: TO BE CONFIRMED (our team will quote before payment)");
-    L.push(`*Total (excl. shipping): ${formatPrice(order.total)}*`);
-  } else {
-    L.push(`Shipping: ${order.shipping === 0 ? "FREE" : formatPrice(order.shipping)}`);
-    L.push(`*Total: ${formatPrice(order.total)}*`);
+  L.push(`Shipping: ${order.shippingTbc ? "To be confirmed" : order.shipping === 0 ? "FREE" : formatPrice(order.shipping)}`);
+  if (order.discount && order.discount > 0) {
+    L.push(`Discount${order.couponCode ? ` (${order.couponCode})` : ""}: -${formatPrice(order.discount)}`);
   }
+  L.push(`Delivery: ${order.shippingMethod} (${order.shippingEta})`);
   L.push("");
-  L.push("*Ship to*");
-  L.push(order.address.fullName);
-  L.push(order.address.address1);
-  if (order.address.address2) L.push(order.address.address2);
-  L.push([order.address.city, order.address.region, order.address.postalCode].filter(Boolean).join(", "));
-  L.push(order.address.countryCode);
-  L.push(`Phone: ${order.address.phone}`);
-  L.push(`Email: ${order.address.email}`);
+  L.push(
+    order.shippingTbc
+      ? `*TOTAL: ${formatPrice(order.total)} + shipping (to be confirmed)*`
+      : `*TOTAL: ${formatPrice(order.total)}*`,
+  );
   L.push("");
-  L.push("Please confirm availability and payment instructions. Thank you.");
+
+  // Delivery details — labelled, human country name
+  L.push("*DELIVERY DETAILS*");
+  L.push(`Name: ${a.fullName}`);
+  L.push(`Address: ${a.address1}`);
+  if (a.address2) L.push(`House No: ${a.address2}`);
+  L.push(`City: ${a.city}`);
+  if (a.region) L.push(`District: ${a.region}`);
+  if (a.postalCode) L.push(`Postal Code: ${a.postalCode}`);
+  L.push(`Country: ${countryName(a.countryCode)}`);
+  L.push("");
+  L.push(`Phone: ${a.phone}`);
+  L.push(`Email: ${a.email}`);
+  L.push("");
+
+  L.push("Please confirm item availability and share payment instructions.");
+  L.push("");
+  L.push("Thank you.");
 
   return L.join("\n");
 }

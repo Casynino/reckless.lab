@@ -240,8 +240,8 @@ export function CheckoutClient({
       setStatus("error");
       return;
     }
-    // Use the real (server) order reference in the WhatsApp hand-off.
-    const waUrl = buildWhatsAppUrl({ ...draft, reference: res.reference });
+    // Use the real (server) order reference + discounted total in the hand-off.
+    const waUrl = buildWhatsAppUrl({ ...draft, reference: res.reference, discount, couponCode: promo?.code, total });
     clearCart();
     setPlaced({ reference: res.reference, tracking: res.tracking, waUrl });
   }
