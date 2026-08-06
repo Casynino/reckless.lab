@@ -58,6 +58,11 @@ function toOrder(o: OrderRow): Order {
     discount: o.discount,
     couponCode: o.couponCode ?? undefined,
     total: o.total,
+    shippingRegion: o.shippingRegion ?? undefined,
+    shippingMethod: o.shippingMethod ?? undefined,
+    shippingEta: o.shippingEta ?? undefined,
+    freeShipping: o.freeShipping,
+    shippingTbc: o.shippingTbc,
     courier: o.courier ?? undefined,
     courierTracking: o.courierTracking ?? undefined,
     state: toAppState(o.state),
@@ -136,6 +141,11 @@ export async function createOrder(
       discount: input.discount,
       couponCode: input.couponCode ?? null,
       total: input.total,
+      shippingRegion: input.shippingRegion ?? null,
+      shippingMethod: input.shippingMethod ?? null,
+      shippingEta: input.shippingEta ?? null,
+      freeShipping: input.freeShipping ?? false,
+      shippingTbc: input.shippingTbc ?? false,
       state: "NEW",
       items: {
         create: input.lines.map((l) => ({

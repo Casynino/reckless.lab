@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/session-cookies";
 import { updateOrderState, createOrder, setCourierTracking } from "./store";
 import { incrementCouponUsage } from "@/lib/promo/store";
+import { quoteShipping } from "@/lib/shop/shipping";
 import type { OrderLine, OrderState } from "./types";
 
 /** Admin: advance/override an order's state. */
@@ -44,15 +45,43 @@ export async function placeOrderAction(input: {
   postalCode?: string;
   lines: OrderLine[];
   subtotal: number;
-  shipping: number;
   discount?: number;
   couponCode?: string;
-  total: number;
 }) {
   if (!input.lines?.length) return { error: "Empty order." };
   const session = await getSession();
+
+  // Authoritative shipping — recomputed server-side from the country + subtotal,
+  // never taken from the client. The result is snapshotted onto the order so it
+  // stays fixed even if the rate card changes later.
+  const discount = Math.min(Math.max(0, input.discount ?? 0), input.subtotal);
+  const q = quoteShipping(input.countryCode, input.subtotal);
+  const shipping = q.fee;
+  const total = Math.max(0, input.subtotal + shipping - discount);
+
   const order = await createOrder(
-    { ...input, discount: input.discount ?? 0, couponCode: input.couponCode },
+    {
+      customerName: input.customerName,
+      customerEmail: input.customerEmail,
+      customerPhone: input.customerPhone,
+      countryCode: input.countryCode,
+      address1: input.address1,
+      address2: input.address2,
+      city: input.city,
+      region: input.region,
+      postalCode: input.postalCode,
+      lines: input.lines,
+      subtotal: input.subtotal,
+      shipping,
+      discount,
+      couponCode: input.couponCode,
+      total,
+      shippingRegion: q.regionLabel,
+      shippingMethod: q.courier,
+      shippingEta: q.eta,
+      freeShipping: q.freeShipping,
+      shippingTbc: q.tbc,
+    },
     { userId: session?.sub },
   );
   if (input.couponCode) await incrementCouponUsage(input.couponCode);

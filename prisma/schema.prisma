@@ -264,6 +264,12 @@ model Order {
   shipping      Int
   discount      Int          @default(0)
   total         Int
+  // Immutable shipping snapshot — captured at checkout, unchanged if rules change.
+  shippingRegion  String?
+  shippingMethod  String?
+  shippingEta     String?
+  freeShipping    Boolean    @default(false)
+  shippingTbc     Boolean    @default(false)
   courier       String?
   courierTracking String?
   state         OrderState   @default(NEW)

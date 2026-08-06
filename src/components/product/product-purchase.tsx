@@ -144,7 +144,7 @@ export function ProductPurchase({ product }: { product: Product }) {
           <WishlistButton productId={product.id} variant="pdp" />
         </div>
         <p className="text-center text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
-          Free worldwide shipping over {formatPrice(FREE_SHIPPING_THRESHOLD)} · Ships in 1–3 days
+          Free shipping over {formatPrice(FREE_SHIPPING_THRESHOLD)} · Courier delivery worldwide
         </p>
       </div>
 

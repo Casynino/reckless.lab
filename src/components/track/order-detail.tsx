@@ -4,18 +4,15 @@ import { motion } from "framer-motion";
 import { SmartImage } from "@/components/ui/smart-image";
 import { ORDER_STAGES, stageIndex, STATE_META, type Order } from "@/lib/orders/types";
 import { formatPrice } from "@/lib/shop/format";
-import { getZoneForCountry, shippingCountries } from "@/lib/shop/shipping";
-
-function countryName(code: string) {
-  return shippingCountries.find((c) => c.code === code)?.name ?? code;
-}
+import { countryName } from "@/lib/shop/shipping";
 
 /** Premium customer-facing order view: status, tracking timeline, items, totals. */
 export function OrderDetail({ order }: { order: Order }) {
   const current = stageIndex(order.state);
   const exception = current < 0; // issue / cancelled
   const meta = STATE_META[order.state];
-  const zone = getZoneForCountry(order.countryCode);
+  // Snapshot captured at checkout; fall back gracefully for legacy orders.
+  const isFree = order.freeShipping ?? order.shipping === 0;
   const eventAt = (key: string) => order.history.find((h) => h.state === key)?.at;
 
   return (
@@ -27,9 +24,9 @@ export function OrderDetail({ order }: { order: Order }) {
             <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
             {meta.label}
           </span>
-          {!exception && (
+          {!exception && order.shippingEta && (
             <span className="text-mono text-[0.6rem] uppercase tracking-[0.2em] text-ash">
-              Est. delivery — {zone.estimate}
+              Est. delivery — {order.shippingEta}
             </span>
           )}
         </div>
@@ -116,11 +113,24 @@ export function OrderDetail({ order }: { order: Order }) {
 
         <dl className="mt-6 space-y-2 border-t border-smoke pt-5 text-sm">
           <div className="flex justify-between text-fog"><dt>Subtotal</dt><dd>{formatPrice(order.subtotal)}</dd></div>
-          <div className="flex justify-between text-fog"><dt>Shipping — {countryName(order.countryCode)}</dt><dd>{order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</dd></div>
+          <div className="flex justify-between text-fog">
+            <dt>Shipping — {countryName(order.countryCode)}</dt>
+            <dd className={isFree ? "text-acid" : ""}>
+              {order.shippingTbc ? "To be confirmed" : isFree ? "Free" : formatPrice(order.shipping)}
+            </dd>
+          </div>
+          {(order.shippingMethod || order.shippingEta) && (
+            <p className="text-mono text-[0.55rem] uppercase tracking-[0.15em] text-ash">
+              {[order.shippingMethod, order.shippingEta].filter(Boolean).join(" · ")}
+            </p>
+          )}
           {order.discount > 0 && (
             <div className="flex justify-between text-acid"><dt>Promo{order.couponCode ? ` · ${order.couponCode}` : ""}</dt><dd>− {formatPrice(order.discount)}</dd></div>
           )}
           <div className="flex justify-between pt-2 text-base text-bone"><dt className="font-medium">Total</dt><dd className="font-medium">{formatPrice(order.total)}</dd></div>
+          {order.shippingTbc && (
+            <p className="text-mono text-[0.55rem] uppercase tracking-[0.15em] text-ash">+ shipping · confirmed on WhatsApp</p>
+          )}
         </dl>
 
         <div className="mt-6 border-t border-smoke pt-5 text-sm text-fog">

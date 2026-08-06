@@ -12,13 +12,19 @@ export function ExportOrders({ orders }: { orders: Order[] }) {
   function download() {
     const headers = [
       "Order", "Tracking", "Date", "Status", "Customer", "Email", "Phone",
-      "Country", "City", "Items", "Subtotal", "Discount", "Shipping", "Total", "Coupon",
+      "Country", "City", "Items", "Subtotal", "Discount",
+      "Shipping", "Shipping Method", "Est. Delivery", "Free Shipping", "Total", "Coupon",
     ];
     const rows = orders.map((o) =>
       [
         o.reference, o.tracking, new Date(o.createdAt).toISOString().slice(0, 10), o.state,
         o.customerName, o.customerEmail, o.customerPhone, o.countryCode, o.city,
-        o.lines.reduce((n, l) => n + l.qty, 0), o.subtotal, o.discount, o.shipping, o.total, o.couponCode ?? "",
+        o.lines.reduce((n, l) => n + l.qty, 0), o.subtotal, o.discount,
+        o.shippingTbc ? "TBC" : o.shipping,
+        o.shippingMethod ?? o.courier ?? "",
+        o.shippingEta ?? "",
+        o.shippingTbc ? "TBC" : (o.freeShipping ?? o.shipping === 0) ? "Yes" : "No",
+        o.total, o.couponCode ?? "",
       ].map(esc).join(","),
     );
     const csv = [headers.join(","), ...rows].join("\n");

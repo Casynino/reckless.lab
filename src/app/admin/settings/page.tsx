@@ -1,6 +1,6 @@
 import { PageTitle, Panel } from "@/components/admin/ui";
 import { shopConfig } from "@/lib/shop/config";
-import { shippingZones, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
+import { SHIPPING_REGIONS, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
 import { formatPrice } from "@/lib/shop/format";
 import { getSession } from "@/lib/auth/session-cookies";
 import { ProfileForm } from "@/components/account/profile-form";
@@ -45,9 +45,19 @@ export default async function AdminSettings() {
           <Row label="Free shipping over" value={formatPrice(FREE_SHIPPING_THRESHOLD)} />
         </Panel>
 
-        <Panel title="Shipping zones">
-          {shippingZones.map((z) => (
-            <Row key={z.id} label={`${z.label} · ${z.estimate}`} value={z.rate === 0 ? "FREE" : formatPrice(z.rate)} />
+        <Panel title="Shipping rates">
+          {SHIPPING_REGIONS.map((r) => (
+            <Row
+              key={r.id}
+              label={`${r.label} · ${r.courier}`}
+              value={
+                r.requiresQuote
+                  ? "Quoted"
+                  : r.freeThreshold === 0
+                    ? "FREE"
+                    : `${formatPrice(r.flatRate)} · free ≥ ${formatPrice(r.freeThreshold)}`
+              }
+            />
           ))}
         </Panel>
 

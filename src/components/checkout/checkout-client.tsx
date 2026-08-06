@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Truck, Clock, Sparkles, Info } from "lucide-react";
 import { useCart, cartSubtotal } from "@/lib/shop/cart-store";
 import { formatPrice } from "@/lib/shop/format";
-import { shippingCountries, getZoneForCountry, shippingCost, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
+import { shippingCountries, quoteShipping, TBC_SHIPPING_MESSAGE, type ShippingQuote } from "@/lib/shop/shipping";
 import { buildOrderDraft, buildWhatsAppUrl, buildOrderMessage } from "@/lib/shop/whatsapp";
 import { placeOrderAction } from "@/lib/orders/actions";
 import { applyCouponAction } from "@/lib/promo/actions";
@@ -67,8 +67,9 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
   const [promoErr, setPromoErr] = useState("");
 
   const subtotal = cartSubtotal(lines);
-  const zone = getZoneForCountry(form.countryCode);
-  const shipping = shippingCost(form.countryCode, subtotal);
+  // Single source of truth — recomputes instantly on country or cart change.
+  const quote = useMemo(() => quoteShipping(form.countryCode, subtotal), [form.countryCode, subtotal]);
+  const shipping = quote.tbc ? 0 : quote.fee;
   const discount = Math.min(promo?.discount ?? 0, subtotal + shipping);
   const total = Math.max(0, subtotal + shipping - discount);
 
@@ -126,10 +127,8 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
         sku: l.sku,
       })),
       subtotal,
-      shipping,
       discount,
       couponCode: promo?.code,
-      total,
     }).catch(() => null);
 
     if (!res || "error" in res) {
@@ -284,9 +283,44 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
                 </option>
               ))}
             </select>
-            <p className="mt-2 text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">
-              Zone: {zone.label} · Est. {zone.estimate}
-            </p>
+          </div>
+
+          {/* Live shipping method + ETA — updates the instant a country is picked */}
+          <div className="col-span-2">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={quote.regionId + String(quote.freeShipping)}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25 }}
+                className="grid gap-px overflow-hidden rounded-sm border border-smoke bg-smoke sm:grid-cols-3"
+              >
+                <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
+                  <Truck className="h-4 w-4 shrink-0 text-acid" />
+                  <div className="min-w-0">
+                    <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Courier</p>
+                    <p className="truncate text-sm text-bone">{quote.courier}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
+                  <Clock className="h-4 w-4 shrink-0 text-acid" />
+                  <div className="min-w-0">
+                    <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Estimated delivery</p>
+                    <p className="text-sm leading-tight text-bone">{quote.eta}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5 bg-ink-soft px-4 py-3">
+                  <Sparkles className="h-4 w-4 shrink-0 text-acid" />
+                  <div className="min-w-0">
+                    <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">Shipping fee</p>
+                    <p className={`text-sm ${quote.freeShipping ? "text-acid" : "text-bone"}`}>
+                      {quote.tbc ? "To be confirmed" : quote.fee === 0 ? "FREE" : formatPrice(quote.fee)}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 
@@ -330,19 +364,20 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
           <div className="mt-6 space-y-2 border-t border-smoke pt-5 text-sm">
             <Row label="Subtotal" value={formatPrice(subtotal)} />
             <Row
-              label={`Shipping · ${zone.label}`}
-              value={shipping === 0 ? "FREE" : formatPrice(shipping)}
-              accent={shipping === 0}
+              label={`Shipping · ${quote.regionLabel}`}
+              value={quote.tbc ? "To be confirmed" : shipping === 0 ? "FREE" : formatPrice(shipping)}
+              accent={!quote.tbc && shipping === 0}
             />
-            {FREE_SHIPPING_THRESHOLD > 0 && subtotal < FREE_SHIPPING_THRESHOLD && (
-              <p className="text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash">
-                {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} away from free shipping
-              </p>
-            )}
+            <p className="text-mono text-[0.55rem] uppercase tracking-[0.15em] text-ash">
+              {quote.courier} · {quote.eta}
+            </p>
             {discount > 0 && promo && (
               <Row label={`Promo · ${promo.code}`} value={`− ${formatPrice(discount)}`} accent />
             )}
           </div>
+
+          {/* Free-shipping progress / status — the trust-builder */}
+          <ShippingStatus quote={quote} />
 
           {/* Promo code */}
           <div className="mt-4 border-t border-smoke pt-4">
@@ -379,6 +414,11 @@ export function CheckoutClient({ loggedIn = false }: { loggedIn?: boolean }) {
             <span className="text-mono text-xs uppercase tracking-[0.25em] text-fog">Total</span>
             <span className="font-display text-2xl text-bone">{formatPrice(total)}</span>
           </div>
+          {quote.tbc && (
+            <p className="mt-1.5 text-right text-mono text-[0.55rem] uppercase tracking-[0.15em] text-ash">
+              + shipping · confirmed on WhatsApp
+            </p>
+          )}
 
           <motion.button
             whileTap={{ scale: 0.98 }}
@@ -418,4 +458,70 @@ function Row({ label, value, accent }: { label: string; value: string; accent?: 
       <span className={accent ? "text-acid" : "text-bone"}>{value}</span>
     </div>
   );
+}
+
+/**
+ * Premium free-shipping status. Three states, one component:
+ *  · Rest-of-world → a trustworthy "to be confirmed" note
+ *  · Threshold met / always-free → a celebratory confirmation
+ *  · Below threshold → an animated progress bar counting down to free shipping
+ */
+function ShippingStatus({ quote }: { quote: ShippingQuote }) {
+  if (quote.tbc) {
+    return (
+      <div className="mt-4 flex gap-2.5 rounded-sm border border-smoke bg-ink p-4">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-acid" />
+        <div>
+          <p className="text-mono text-[0.6rem] uppercase tracking-[0.2em] text-acid">Shipping · To be confirmed</p>
+          <p className="mt-1.5 text-xs leading-relaxed text-fog">{TBC_SHIPPING_MESSAGE}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (quote.freeShipping) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 6, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-4 flex items-center gap-2.5 rounded-sm border border-acid/40 bg-acid/10 p-3.5"
+      >
+        <motion.span
+          animate={{ scale: [1, 1.25, 1], rotate: [0, -8, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 1.5 }}
+        >
+          <Sparkles className="h-4 w-4 shrink-0 text-acid" />
+        </motion.span>
+        <p className="text-xs font-medium leading-snug text-acid">
+          Congratulations! Your order qualifies for FREE shipping.
+        </p>
+      </motion.div>
+    );
+  }
+
+  if (quote.progressEligible && quote.remainingForFree > 0 && quote.freeThreshold > 0) {
+    const pct = Math.max(
+      5,
+      Math.min(100, Math.round(((quote.freeThreshold - quote.remainingForFree) / quote.freeThreshold) * 100)),
+    );
+    return (
+      <div className="mt-4 rounded-sm border border-smoke bg-ink p-4">
+        <p className="text-xs text-fog">
+          You&apos;re only <span className="font-semibold text-bone">{formatPrice(quote.remainingForFree)}</span> away from{" "}
+          <span className="font-semibold text-acid">FREE shipping</span>.
+        </p>
+        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-smoke">
+          <motion.div
+            className="h-full rounded-full bg-acid"
+            initial={{ width: 0 }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }

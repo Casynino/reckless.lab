@@ -65,6 +65,13 @@ export interface Order {
   discount: number;
   couponCode?: string;
   total: number;
+  /** Immutable shipping snapshot — captured at checkout, never recalculated. */
+  shippingRegion?: string;
+  shippingMethod?: string;
+  shippingEta?: string;
+  freeShipping?: boolean;
+  /** Rest-of-world order — shipping fee to be confirmed by the team. */
+  shippingTbc?: boolean;
   courier?: string;
   courierTracking?: string;
   state: OrderState;

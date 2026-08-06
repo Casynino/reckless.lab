@@ -1,7 +1,7 @@
 import type { CartLine, ShippingAddress } from "@/lib/types";
 import { shopConfig } from "./config";
 import { formatPrice } from "./format";
-import { getZoneForCountry, shippingCost } from "./shipping";
+import { quoteShipping } from "./shipping";
 
 export interface OrderDraft {
   lines: CartLine[];
@@ -9,6 +9,9 @@ export interface OrderDraft {
   subtotal: number;
   shipping: number;
   total: number;
+  shippingMethod: string;
+  shippingEta: string;
+  shippingTbc: boolean;
   reference: string;
 }
 
@@ -23,13 +26,16 @@ export function buildOrderDraft(
   seed: number,
 ): OrderDraft {
   const subtotal = lines.reduce((n, l) => n + l.price * l.qty, 0);
-  const shipping = shippingCost(address.countryCode, subtotal);
+  const q = quoteShipping(address.countryCode, subtotal);
   return {
     lines,
     address,
     subtotal,
-    shipping,
-    total: subtotal + shipping,
+    shipping: q.fee,
+    total: subtotal + q.fee,
+    shippingMethod: q.courier,
+    shippingEta: q.eta,
+    shippingTbc: q.tbc,
     reference: buildReference(seed),
   };
 }
@@ -43,7 +49,6 @@ export function buildOrderDraft(
  */
 export function buildOrderMessage(order: OrderDraft): string {
   const { brand } = shopConfig;
-  const zone = getZoneForCountry(order.address.countryCode);
   const L: string[] = [];
 
   L.push(`*${brand.name.toUpperCase()} — NEW ORDER*`);
@@ -57,8 +62,14 @@ export function buildOrderMessage(order: OrderDraft): string {
   L.push("");
   L.push("*Summary*");
   L.push(`Subtotal: ${formatPrice(order.subtotal)}`);
-  L.push(`Shipping (${zone.label}, ${zone.estimate}): ${order.shipping === 0 ? "FREE" : formatPrice(order.shipping)}`);
-  L.push(`*Total: ${formatPrice(order.total)}*`);
+  L.push(`Courier: ${order.shippingMethod} — ${order.shippingEta}`);
+  if (order.shippingTbc) {
+    L.push("Shipping: TO BE CONFIRMED (our team will quote before payment)");
+    L.push(`*Total (excl. shipping): ${formatPrice(order.total)}*`);
+  } else {
+    L.push(`Shipping: ${order.shipping === 0 ? "FREE" : formatPrice(order.shipping)}`);
+    L.push(`*Total: ${formatPrice(order.total)}*`);
+  }
   L.push("");
   L.push("*Ship to*");
   L.push(order.address.fullName);

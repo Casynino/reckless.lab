@@ -7,6 +7,7 @@ import { ChevronDown, Search, X, Phone, MapPin, AlertTriangle } from "lucide-rea
 import type { Order, OrderState } from "@/lib/orders/types";
 import { STATE_META, ORDER_STAGES, stageIndex } from "@/lib/orders/types";
 import { formatPrice } from "@/lib/shop/format";
+import { countryName } from "@/lib/shop/shipping";
 import { updateOrderStateAction } from "@/lib/orders/actions";
 import { StageMini } from "@/components/admin/stage-mini";
 import { OrderTracker } from "@/components/admin/order-tracker";
@@ -207,9 +208,21 @@ function OrderRow({ order, open, onToggle }: { order: Order; open: boolean; onTo
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-3 flex items-center justify-between border-t border-smoke pt-3 text-sm">
-                    <span className="text-ash">Total ({order.shipping === 0 ? "free ship" : formatPrice(order.shipping) + " ship"})</span>
-                    <span className="figure text-lg text-bone">{formatPrice(order.total)}</span>
+                  <div className="mt-3 border-t border-smoke pt-3">
+                    <p className="mb-1.5 text-[0.6rem] uppercase tracking-[0.15em] text-ash">
+                      {countryName(order.countryCode)} · {order.shippingMethod ?? order.courier ?? "—"}
+                      {order.shippingEta ? ` · ${order.shippingEta}` : ""}
+                    </p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-ash">
+                        Total ({order.shippingTbc
+                          ? "ship TBC"
+                          : (order.freeShipping ?? order.shipping === 0)
+                            ? "free ship"
+                            : formatPrice(order.shipping) + " ship"})
+                      </span>
+                      <span className="figure text-lg text-bone">{formatPrice(order.total)}</span>
+                    </div>
                   </div>
                 </div>
 

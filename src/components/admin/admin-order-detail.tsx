@@ -6,9 +6,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { setCourierAction } from "@/lib/orders/actions";
 import { STATE_META, type Order } from "@/lib/orders/types";
 import { formatPrice } from "@/lib/shop/format";
-import { shippingCountries } from "@/lib/shop/shipping";
-
-const countryName = (c: string) => shippingCountries.find((x) => x.code === c)?.name ?? c;
+import { countryName } from "@/lib/shop/shipping";
 
 export function AdminOrderDetail({ order }: { order: Order }) {
   const [pending, start] = useTransition();
@@ -50,9 +48,10 @@ export function AdminOrderDetail({ order }: { order: Order }) {
         <div class="box" style="flex:1"><p class="mono">Tracking</p><p style="margin-top:8px">Internal: <strong>${order.tracking}</strong><br>Courier: ${order.courier || "—"}<br>Courier ref: ${order.courierTracking || "—"}</p></div>
       </div>
       <table><thead><tr><th>Item</th><th>Size</th><th>Qty</th><th>SKU</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="mono" style="margin-top:16px">Shipping: ${order.shippingMethod || order.courier || "—"}${order.shippingEta ? ` — ${order.shippingEta}` : ""}</p>
       <div class="tot">
         Subtotal: ${formatPrice(order.subtotal)}<br>
-        Shipping: ${order.shipping === 0 ? "Free" : formatPrice(order.shipping)}<br>
+        Shipping: ${order.shippingTbc ? "To be confirmed" : (order.freeShipping ?? order.shipping === 0) ? "Free" : formatPrice(order.shipping)}<br>
         ${order.discount > 0 ? `Discount${order.couponCode ? ` (${order.couponCode})` : ""}: -${formatPrice(order.discount)}<br>` : ""}
         <span class="big">Total: ${formatPrice(order.total)}</span>
       </div>
@@ -113,6 +112,26 @@ export function AdminOrderDetail({ order }: { order: Order }) {
         </div>
       </div>
 
+      {/* Shipping snapshot — captured at checkout, never recalculated */}
+      <div className="mt-6 rounded-sm border border-smoke bg-ink-soft p-6">
+        <p className="text-mono text-[0.55rem] uppercase tracking-[0.25em] text-ash">Shipping</p>
+        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+          <Fact label="Country" value={countryName(order.countryCode)} />
+          <Fact
+            label="Shipping fee"
+            value={order.shippingTbc ? "To be confirmed" : shippingIsFree(order) ? "Free" : formatPrice(order.shipping)}
+            accent={shippingIsFree(order)}
+          />
+          <Fact label="Method" value={order.shippingMethod ?? order.courier ?? "—"} />
+          <Fact label="Est. delivery" value={order.shippingEta ?? "—"} />
+          <Fact
+            label="Free shipping"
+            value={order.shippingTbc ? "TBC" : shippingIsFree(order) ? "Yes" : "No"}
+            accent={shippingIsFree(order)}
+          />
+        </div>
+      </div>
+
       {/* Items */}
       <div className="mt-6 overflow-x-auto rounded-sm border border-smoke bg-ink-soft">
         <table className="w-full min-w-[520px] text-left text-sm">
@@ -138,12 +157,26 @@ export function AdminOrderDetail({ order }: { order: Order }) {
         <div className="flex justify-end gap-8 border-t border-smoke p-4 text-sm">
           <div className="text-right text-fog">
             <p>Subtotal {formatPrice(order.subtotal)}</p>
-            <p>Shipping {order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</p>
+            <p>Shipping {order.shippingTbc ? "To be confirmed" : shippingIsFree(order) ? "Free" : formatPrice(order.shipping)}</p>
             {order.discount > 0 && <p className="text-acid">Discount −{formatPrice(order.discount)}</p>}
             <p className="mt-1 text-base font-medium text-bone">Total {formatPrice(order.total)}</p>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Free when the snapshot says so; legacy orders fall back to a zero fee. */
+function shippingIsFree(order: Order): boolean {
+  return order.freeShipping ?? order.shipping === 0;
+}
+
+function Fact({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-mono text-[0.5rem] uppercase tracking-[0.2em] text-ash">{label}</p>
+      <p className={`mt-1 text-sm ${accent ? "text-acid" : "text-bone"}`}>{value}</p>
     </div>
   );
 }

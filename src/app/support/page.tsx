@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/layout/page-hero";
 import { ProductAccordion } from "@/components/product/product-accordion";
 import { shopConfig } from "@/lib/shop/config";
-import { shippingZones } from "@/lib/shop/shipping";
+import { SHIPPING_REGIONS, FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
 import { formatPrice } from "@/lib/shop/format";
 
 export const metadata: Metadata = {
@@ -35,19 +35,25 @@ export default function SupportPage() {
                 ),
               },
               {
-                title: "Shipping zones & rates",
+                title: "Shipping rates & delivery",
                 body: (
                   <ul className="space-y-2">
-                    {shippingZones.map((z) => (
+                    {SHIPPING_REGIONS.map((z) => (
                       <li key={z.id} className="flex items-center justify-between border-b border-smoke/60 pb-2">
                         <span>
-                          {z.label} <span className="text-ash">· {z.estimate}</span>
+                          {z.label} <span className="text-ash">· {z.courier}</span>
                         </span>
-                        <span className="text-bone">{z.rate === 0 ? "FREE" : formatPrice(z.rate)}</span>
+                        <span className="text-bone">
+                          {z.requiresQuote
+                            ? "Quoted after checkout"
+                            : z.freeThreshold === 0
+                              ? "FREE"
+                              : `${formatPrice(z.flatRate)} · free ≥ ${formatPrice(z.freeThreshold)}`}
+                        </span>
                       </li>
                     ))}
                     <li className="pt-2 text-mono text-[0.65rem] uppercase tracking-[0.15em] text-acid">
-                      Free worldwide shipping over {formatPrice(90)}
+                      Free shipping over {formatPrice(FREE_SHIPPING_THRESHOLD)} to supported markets
                     </li>
                   </ul>
                 ),
