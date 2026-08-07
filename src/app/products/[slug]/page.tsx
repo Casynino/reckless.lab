@@ -8,8 +8,10 @@ import { ColorwaySwitcher } from "@/components/product/colorway-switcher";
 import { ProductAccordion } from "@/components/product/product-accordion";
 import { ProductGrid } from "@/components/product/product-grid";
 import { ProductEditorial } from "@/components/product/product-editorial";
+import { ProductReviews, Stars } from "@/components/product/product-reviews";
 import { SplitText } from "@/components/motion/split-text";
 import { ChapterTag } from "@/components/about/chapter-rail";
+import { getReviewStats, listReviews } from "@/lib/reviews/store";
 
 // Stock is dynamic. The admin inventory action revalidates this path on every
 // change, but keep a short ISR window as a backstop so live stock (and the
@@ -45,9 +47,11 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [related, colorways] = await Promise.all([
+  const [related, colorways, reviewStats, reviews] = await Promise.all([
     getRelatedProducts(product, 4),
     getColorwaysOf(product),
+    getReviewStats(product.id),
+    listReviews(product.id, { take: 100 }),
   ]);
 
   return (
@@ -87,6 +91,15 @@ export default async function ProductPage({
 
           <h1 className="mt-4 font-display text-5xl uppercase leading-[0.95] tracking-tight text-bone md:text-6xl">{product.name}</h1>
           <p className="mt-3 text-fog">{product.subtitle}</p>
+
+          {reviewStats.count > 0 && (
+            <a href="#reviews" className="mt-3 inline-flex items-center gap-2 text-sm text-bone-dim transition-colors hover:text-bone">
+              <Stars value={reviewStats.average} size="sm" />
+              <span className="text-mono text-[0.65rem] uppercase tracking-[0.15em]">
+                {reviewStats.average.toFixed(1)} · {reviewStats.count} review{reviewStats.count === 1 ? "" : "s"}
+              </span>
+            </a>
+          )}
 
           <ColorwaySwitcher colorways={colorways} currentSlug={product.slug} />
 
@@ -145,9 +158,9 @@ export default async function ProductPage({
                   title: "Shipping & Returns",
                   body: (
                     <p>
-                      Ships worldwide from Banjul in 1–3 days. Free shipping over $90. 14-day returns on unworn
-                      pieces. Orders are confirmed and paid via WhatsApp for now — checkout generates your order
-                      summary automatically.
+                      Ships worldwide with fast courier delivery. Free shipping over $100 to supported markets.
+                      14-day returns on unworn pieces. Orders are confirmed and paid via WhatsApp for now —
+                      checkout generates your order summary automatically.
                     </p>
                   ),
                 },
@@ -161,6 +174,15 @@ export default async function ProductPage({
       <div className="mt-24 md:mt-32">
         <ProductEditorial product={product} />
       </div>
+
+      {/* Community reviews */}
+      <ProductReviews
+        productId={product.id}
+        productSlug={product.slug}
+        productName={product.name}
+        reviews={reviews}
+        stats={reviewStats}
+      />
 
       {/* Recommendations */}
       {related.length > 0 && (

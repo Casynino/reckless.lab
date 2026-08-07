@@ -88,6 +88,11 @@ enum NotificationType {
   SYSTEM
 }
 
+enum ReviewStatus {
+  PUBLISHED
+  HIDDEN
+}
+
 // ─────────────────────────────── Identity ───────────────────────────────
 model User {
   id            String         @id @default(cuid())
@@ -417,6 +422,29 @@ model ShippingRate {
   updatedAt     DateTime @updatedAt
 
   @@index([active, sortOrder])
+}
+
+// ─────────────────────────────── Community ───────────────────────────────
+model Review {
+  id           String       @id @default(cuid())
+  productId    String
+  userId       String?
+  authorName   String
+  authorEmail  String
+  rating       Int          // 1–5 stars
+  title        String
+  body         String
+  /** Fit feedback: -2 runs small … 0 true to size … +2 runs large. */
+  fit          Int          @default(0)
+  recommend    Boolean      @default(true)
+  /** True when the reviewer's email has an order containing this product. */
+  verified     Boolean      @default(false)
+  status       ReviewStatus @default(PUBLISHED)
+  helpfulCount Int          @default(0)
+  createdAt    DateTime     @default(now())
+
+  @@index([productId, status])
+  @@index([createdAt])
 }
 
 // ─────────────────────────────── Content ───────────────────────────────
