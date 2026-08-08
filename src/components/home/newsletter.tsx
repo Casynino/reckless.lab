@@ -1,18 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { SplitText } from "@/components/motion/split-text";
+import { subscribeNewsletterAction } from "@/lib/newsletter/actions";
 
 export function Newsletter() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
+  const [err, setErr] = useState("");
+  const [pending, start] = useTransition();
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    setErr("");
     if (!email.includes("@")) return;
-    // Wire to a real ESP (Klaviyo/Mailchimp) later. For now, optimistic UI.
-    setDone(true);
+    start(async () => {
+      const res = await subscribeNewsletterAction(email);
+      if (res?.error) return setErr(res.error);
+      setDone(true);
+    });
   }
 
   return (
@@ -48,13 +55,15 @@ export function Newsletter() {
             />
             <button
               type="submit"
+              disabled={pending}
               data-cursor="join"
-              className="shrink-0 py-3 pl-4 text-mono text-xs font-bold uppercase tracking-[0.25em] text-acid hover:text-bone"
+              className="shrink-0 py-3 pl-4 text-mono text-xs font-bold uppercase tracking-[0.25em] text-acid hover:text-bone disabled:opacity-50"
             >
-              Subscribe →
+              {pending ? "…" : "Subscribe →"}
             </button>
           </form>
         )}
+        {err && <p className="mt-4 text-mono text-xs uppercase tracking-[0.2em] text-acid">{err}</p>}
       </div>
 
       {/* faint oversized wordmark */}

@@ -424,6 +424,13 @@ model ShippingRate {
   @@index([active, sortOrder])
 }
 
+// ─────────────────────────────── Marketing ───────────────────────────────
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 // ─────────────────────────────── Community ───────────────────────────────
 model Review {
   id           String       @id @default(cuid())
