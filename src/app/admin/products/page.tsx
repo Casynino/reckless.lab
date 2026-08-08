@@ -79,8 +79,9 @@ export default async function AdminProducts() {
       </div>
 
       <p className="mt-5 max-w-2xl text-mono text-[0.7rem] uppercase leading-relaxed tracking-[0.15em] text-ash">
-        Read-only view for now — the catalog is served from typed files. Editing, image uploads and stock
-        adjustments land when the catalog moves to the database (the data layer is already abstracted for it).
+        Catalog overview. Adjust stock per size on the{" "}
+        <Link href="/admin/inventory" className="text-acid hover:underline">Inventory</Link> page. Full product editing
+        (copy, imagery, new drops) is handled with your developer — reach out to add or change pieces.
       </p>
     </div>
   );

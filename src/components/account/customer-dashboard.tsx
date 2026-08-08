@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, ShoppingBag, MapPin, Package, Gift, LogOut, MessageSquare, ArrowUpRight } from "lucide-react";
@@ -13,14 +13,14 @@ import { STATE_META, type Order } from "@/lib/orders/types";
 import { AccountOrders } from "./account-orders";
 import { AddressBook } from "./address-book";
 import { ProfileForm } from "./profile-form";
-import type { Product } from "@/lib/types";
+import type { Product, Size } from "@/lib/types";
 import type { SavedAddress } from "@/lib/account/addresses";
 
 const TABS = ["Overview", "Orders", "Wishlist", "Addresses", "Settings"] as const;
 type Tab = (typeof TABS)[number];
 
-function firstSize(p: Product) {
-  return (p.variants.find((v) => v.stock > 0) ?? p.variants[0]).size;
+function firstSize(p: Product): Size | undefined {
+  return (p.variants.find((v) => v.stock > 0) ?? p.variants[0])?.size;
 }
 
 export function CustomerDashboard({
@@ -37,12 +37,16 @@ export function CustomerDashboard({
   allProducts: Product[];
 }) {
   const [tab, setTab] = useState<Tab>("Overview");
+  // Wishlist is persisted client-side — defer reading it until mount so the
+  // server render (empty) matches the first client render (no hydration flash).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const wishIds = useWishlist((s) => s.ids);
   const removeWish = useWishlist((s) => s.remove);
   const addCart = useCart((s) => s.add);
   const openCart = useCart((s) => s.open);
 
-  const saved = allProducts.filter((p) => wishIds.includes(p.id));
+  const saved = mounted ? allProducts.filter((p) => wishIds.includes(p.id)) : [];
   const active = orders.filter((o) => !["delivered", "cancelled"].includes(o.state));
   const delivered = orders.filter((o) => o.state === "delivered");
   const recent = orders[0];
@@ -151,7 +155,7 @@ export function CustomerDashboard({
                   {saved.map((p) => (
                     <div key={p.id} className="group rounded-sm border border-smoke bg-ink-soft p-3">
                       <Link href={`/products/${p.slug}`} className="relative block aspect-[3/4] overflow-hidden rounded-sm bg-carbon">
-                        <SmartImage src={p.media[0].src} alt={p.name} fill sizes="30vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <SmartImage src={p.media[0]?.src ?? ""} alt={p.name} fill sizes="30vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                       </Link>
                       <div className="mt-3">
                         <p className="text-sm text-bone">{p.name}</p>
@@ -159,7 +163,7 @@ export function CustomerDashboard({
                       </div>
                       <div className="mt-3 flex gap-2">
                         <button
-                          onClick={() => { addCart(p, firstSize(p), 1); removeWish(p.id); openCart(); }}
+                          onClick={() => { const s = firstSize(p); if (!s) return; addCart(p, s, 1); removeWish(p.id); openCart(); }}
                           className="flex-1 bg-bone py-2 text-mono text-[0.55rem] font-bold uppercase tracking-[0.15em] text-ink transition-opacity hover:opacity-90"
                         >
                           Move to bag

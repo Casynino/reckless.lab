@@ -98,6 +98,9 @@ export default async function AdminOverview() {
         <section>
           <p className="mb-4 text-mono text-[0.7rem] uppercase tracking-[0.16em] text-ash">Order status</p>
           <Panel title="This drop">
+            {a.orders.byStatus.length === 0 ? (
+              <p className="text-sm text-fog">No orders yet — this fills in as orders come through.</p>
+            ) : (
             <ul className="space-y-3">
               {a.orders.byStatus.map((s) => {
                 const pct = Math.round((s.count / a.orders.total) * 100);
@@ -114,6 +117,7 @@ export default async function AdminOverview() {
                 );
               })}
             </ul>
+            )}
           </Panel>
         </section>
       </div>
@@ -134,6 +138,9 @@ export default async function AdminOverview() {
             title="Recent orders"
             action={<Link href="/admin/orders" className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash hover:text-bone">Order monitor →</Link>}
           >
+            {recent.length === 0 ? (
+              <p className="text-sm text-fog">No orders yet — your latest orders will appear here.</p>
+            ) : (
             <ul className="divide-y divide-smoke/60">
               {recent.map((o) => (
                 <li key={o.id} className="py-3">
@@ -151,6 +158,7 @@ export default async function AdminOverview() {
                 </li>
               ))}
             </ul>
+            )}
           </Panel>
         </Reveal>
 

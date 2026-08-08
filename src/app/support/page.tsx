@@ -30,9 +30,9 @@ export default async function SupportPage() {
                 body: (
                   <p>
                     Add pieces to your bag and head to checkout. Enter your shipping details and tap
-                    &ldquo;Complete via WhatsApp&rdquo; — we generate your full order summary and open a chat with our
-                    team, who confirm stock and send payment instructions. Online card & mobile-money payments are
-                    coming soon.
+                    &ldquo;Place order &amp; continue&rdquo; — we generate your full order summary and open a WhatsApp chat
+                    with our team, who confirm stock and send payment instructions. Online card &amp; mobile-money
+                    payments are coming soon.
                   </p>
                 ),
               },

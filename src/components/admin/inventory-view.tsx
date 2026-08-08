@@ -23,7 +23,7 @@ export interface InvProduct {
 type Level = "out" | "critical" | "low" | "healthy";
 
 function levelOf(p: InvProduct): Level {
-  if (p.total === 0) return "out";
+  if (p.total === 0 || p.sizes.length === 0) return "out";
   const min = Math.min(...p.sizes.map((s) => s.stock));
   if (min <= 4) return "critical";
   if (min <= 8) return "low";

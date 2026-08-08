@@ -36,8 +36,8 @@ export function ProductCard({ product, priority }: { product: Product; priority?
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-carbon">
         <SmartImage
-          src={primary.src}
-          alt={primary.alt}
+          src={primary?.src ?? ""}
+          alt={primary?.alt ?? product.name}
           fill
           priority={priority}
           sizes="(max-width:768px) 50vw, 25vw"
@@ -47,8 +47,8 @@ export function ProductCard({ product, priority }: { product: Product; priority?
           )}
         />
         <SmartImage
-          src={secondary.src}
-          alt={secondary.alt}
+          src={secondary?.src ?? ""}
+          alt={secondary?.alt ?? product.name}
           fill
           sizes="(max-width:768px) 50vw, 25vw"
           className={cn(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -92,6 +92,10 @@ export function CheckoutClient({
   const [addrSave, setAddrSave] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [addrErr, setAddrErr] = useState("");
   const [touched, setTouched] = useState(false);
+  // Cart is persisted client-side; wait for mount before deciding it's empty so
+  // the "nothing to check out" state never flashes on the real page.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   function pickAddress(a: SavedAddress) {
     setSelectedAddrId(a.id);
@@ -320,6 +324,12 @@ export function CheckoutClient({
         )}
       </div>
     );
+  }
+
+  // Before the persisted cart hydrates we can't tell if it's really empty — show
+  // a quiet placeholder instead of flashing the empty state.
+  if (!mounted) {
+    return <div className="container-edge flex min-h-[60vh] items-center justify-center text-mono text-[0.7rem] uppercase tracking-[0.25em] text-ash">Loading your bag…</div>;
   }
 
   if (lines.length === 0) {

@@ -25,7 +25,7 @@ function Plate({
   return (
     <Link href={`/products/${product.slug}`} data-cursor="open" className={cn("group block", className)}>
       <div className={cn("relative w-full overflow-hidden rounded-sm bg-carbon", ratio)}>
-        <SmartImage src={product.media[0].src} alt={product.name} fill sizes={sizes} className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]" />
+        <SmartImage src={product.media[0]?.src ?? ""} alt={product.name} fill sizes={sizes} className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         {n && <span className="absolute left-4 top-3 font-display text-3xl text-onphoto/70 md:text-4xl">{n}</span>}
         <span className="absolute bottom-4 left-4 translate-y-2 text-mono text-[0.6rem] uppercase tracking-[0.25em] text-onphoto opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
