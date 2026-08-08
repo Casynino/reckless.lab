@@ -75,8 +75,8 @@ export function SiteFooter() {
         <span>© {year} {shopConfig.brand.name}. All rights reserved.</span>
         <span>{shopConfig.brand.locationLabel} · EST. {shopConfig.brand.est}</span>
         <div className="flex items-center gap-4">
-          <Link href="/support" className="hover:text-bone">Privacy</Link>
-          <Link href="/support" className="hover:text-bone">Terms</Link>
+          <Link href="/privacy" className="hover:text-bone">Privacy</Link>
+          <Link href="/terms" className="hover:text-bone">Terms</Link>
           <span className="text-ash/40">·</span>
           <DeveloperCredit />
         </div>
