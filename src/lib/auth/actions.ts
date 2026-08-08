@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { findByEmail, createUser, updateUserAddress, updateUserProfile, updateUserPassword, findById } from "./store";
+import { findByEmail, createUser, updateUserAddress, updateUserProfile, updateUserPassword, setUserPassword, findById } from "./store";
 import { verifyPassword } from "./password";
 import { setSession, clearSession, getSession } from "./session-cookies";
 import type { Address } from "./types";
@@ -106,6 +106,20 @@ export async function updateProfileAction(_prev: AuthState, formData: FormData):
   revalidatePath("/account");
   revalidatePath("/admin");
   return { ok: true };
+}
+
+/**
+ * Admin: reset a customer's password to a fresh temporary one. The temp
+ * password is returned so the admin can relay it (e.g. over WhatsApp); the
+ * customer changes it from their account afterward. Admin-guarded.
+ */
+export async function adminResetPasswordAction(userId: string) {
+  const session = await getSession();
+  if (session?.role !== "admin") return { error: "Not authorised." };
+  const temp = "reckless-" + Math.floor(1000 + Math.random() * 9000);
+  const u = await setUserPassword(userId, temp);
+  if (!u) return { error: "Account not found." };
+  return { ok: true, tempPassword: temp, email: u.email, name: u.name };
 }
 
 /** Change the signed-in user's password (requires current password). */

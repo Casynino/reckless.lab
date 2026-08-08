@@ -2,6 +2,7 @@ import { listCustomers } from "@/lib/auth/store";
 import { getCustomerOrderStats } from "@/lib/orders/store";
 import { PageTitle } from "@/components/admin/ui";
 import { formatPrice } from "@/lib/shop/format";
+import { CustomerReset } from "@/components/admin/customer-reset";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function AdminCustomers() {
                 <th className="px-4 py-3 font-normal">Lifetime value</th>
                 <th className="px-4 py-3 font-normal">Last order</th>
                 <th className="px-4 py-3 font-normal">Joined</th>
+                <th className="px-4 py-3 font-normal text-right">Password</th>
               </tr>
             </thead>
             <tbody>
@@ -51,6 +53,9 @@ export default async function AdminCustomers() {
                   </td>
                   <td className="px-4 py-3 text-mono text-[0.65rem] uppercase tracking-[0.15em] text-ash">
                     {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <CustomerReset id={c.id} name={c.name} />
                   </td>
                 </tr>
               ))}

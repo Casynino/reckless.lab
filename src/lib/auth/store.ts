@@ -98,6 +98,15 @@ export async function updateUserPassword(id: string, current: string, next: stri
   await db.user.update({ where: { id }, data: { salt, passwordHash: hash } });
 }
 
+/** Set a password directly (admin reset — no current-password check). */
+export async function setUserPassword(id: string, next: string): Promise<{ name: string; email: string } | null> {
+  const u = await db.user.findUnique({ where: { id } });
+  if (!u) return null;
+  const { salt, hash } = hashPassword(next);
+  await db.user.update({ where: { id }, data: { salt, passwordHash: hash } });
+  return { name: u.name, email: u.email };
+}
+
 export async function updateUserAddress(id: string, address: Address): Promise<void> {
   const existing = await db.address.findFirst({ where: { userId: id } });
   const data = {

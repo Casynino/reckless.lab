@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getAllProducts } from "@/lib/data";
-import { productStock, variantStockMap } from "@/lib/inventory/store";
+import { Plus } from "lucide-react";
+import { listAdminProducts } from "@/lib/admin/products";
 import { formatPrice } from "@/lib/shop/format";
 import { SmartImage } from "@/components/ui/smart-image";
 import { PageTitle } from "@/components/admin/ui";
@@ -8,80 +8,78 @@ import { PageTitle } from "@/components/admin/ui";
 export const dynamic = "force-dynamic";
 
 export default async function AdminProducts() {
-  const products = await getAllProducts();
+  const products = await listAdminProducts();
+  const live = products.filter((p) => p.published).length;
 
   return (
     <div>
-      <PageTitle title="Products" subtitle={`${products.length} pieces across the drop.`} />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <PageTitle title="Products" subtitle={`${live} live · ${products.length} total`} />
+        <Link
+          href="/admin/products/new"
+          className="inline-flex items-center gap-2 bg-acid px-5 py-2.5 text-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-ink transition-opacity hover:opacity-90"
+        >
+          <Plus className="h-3.5 w-3.5" /> New product
+        </Link>
+      </div>
 
-      <div className="overflow-x-auto border border-smoke bg-ink-soft">
+      <div className="mt-8 overflow-x-auto border border-smoke bg-ink-soft">
         <table className="w-full min-w-[720px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-smoke text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash">
               <th className="px-4 py-3 font-normal">Piece</th>
               <th className="px-4 py-3 font-normal">Colour</th>
               <th className="px-4 py-3 font-normal">Price</th>
-              <th className="px-4 py-3 font-normal">Stock (S / M / L / XL)</th>
+              <th className="px-4 py-3 font-normal">Stock</th>
               <th className="px-4 py-3 font-normal">Status</th>
               <th className="px-4 py-3 font-normal"></th>
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => {
-              const stock = productStock(p);
-              const map = variantStockMap(p);
-              const bySize = (s: string) => map[s];
-              return (
-                <tr key={p.id} className="border-b border-smoke/50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="relative h-12 w-10 shrink-0 overflow-hidden bg-carbon">
-                        <SmartImage src={p.media[0]?.src} alt={p.name} fill sizes="40px" className="object-cover" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-bone">{p.name}</p>
-                        <p className="text-mono text-[0.7rem] uppercase tracking-[0.15em] text-ash">
-                          {p.variants[0]?.sku.split("-").slice(0, -1).join("-")}
-                        </p>
-                      </div>
+            {products.map((p) => (
+              <tr key={p.id} className="border-b border-smoke/50">
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-12 w-10 shrink-0 overflow-hidden bg-carbon">
+                      <SmartImage src={p.image} alt={p.name} fill sizes="40px" className="object-cover" />
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-bone-dim">{p.colorway}</td>
-                  <td className="px-4 py-3 text-bone">{formatPrice(p.price)}</td>
-                  <td className="px-4 py-3">
-                    <span className={stock < 20 ? "text-acid" : "text-bone"}>{stock}</span>{" "}
-                    <span className="text-mono text-[0.65rem] text-ash">
-                      ({["S", "M", "L", "XL"].map((s) => bySize(s) ?? "–").join(" / ")})
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-1">
-                      {p.isNew && <Tag>New</Tag>}
-                      {p.isLimited && <Tag accent>Limited</Tag>}
-                      {p.isBestSeller && <Tag>Best</Tag>}
-                      {stock === 0 && <Tag>Sold out</Tag>}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/products/${p.slug}`}
-                      target="_blank"
-                      className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash hover:text-acid"
-                    >
+                    <p className="font-medium text-bone">{p.name}</p>
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-bone-dim">{p.colorway}</td>
+                <td className="px-4 py-3 text-bone">{formatPrice(p.price)}</td>
+                <td className="px-4 py-3">
+                  <span className={p.stock < 20 ? "text-acid" : "text-bone"}>{p.stock}</span>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-1">
+                    {!p.published && <Tag accent>Draft</Tag>}
+                    {p.isNew && <Tag>New</Tag>}
+                    {p.isLimited && <Tag accent>Limited</Tag>}
+                    {p.isBestSeller && <Tag>Best</Tag>}
+                    {p.stock === 0 && <Tag>Sold out</Tag>}
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <div className="flex items-center justify-end gap-3">
+                    <Link href={`/admin/products/${p.id}/edit`} className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-acid hover:underline">
+                      Edit
+                    </Link>
+                    <Link href={`/products/${p.slug}`} target="_blank" className="text-mono text-[0.7rem] uppercase tracking-[0.13em] text-ash hover:text-bone">
                       View ↗
                     </Link>
-                  </td>
-                </tr>
-              );
-            })}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
       <p className="mt-5 max-w-2xl text-mono text-[0.7rem] uppercase leading-relaxed tracking-[0.15em] text-ash">
-        Catalog overview. Adjust stock per size on the{" "}
-        <Link href="/admin/inventory" className="text-acid hover:underline">Inventory</Link> page. Full product editing
-        (copy, imagery, new drops) is handled with your developer — reach out to add or change pieces.
+        Add or edit pieces here. Stock can also be adjusted per size on the{" "}
+        <Link href="/admin/inventory" className="text-acid hover:underline">Inventory</Link> page. Images are set by URL —
+        host them anywhere and paste the link.
       </p>
     </div>
   );

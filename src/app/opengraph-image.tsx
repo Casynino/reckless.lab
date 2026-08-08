@@ -50,7 +50,7 @@ export default function OpengraphImage() {
           Reckless Laboratory
         </div>
         <div style={{ marginTop: 16, fontSize: 25, letterSpacing: 8, textTransform: "uppercase", color: "#8a857c" }}>
-          It’s not for you · EST 2026 · Banjul
+          It’s not for you
         </div>
       </div>
     ),

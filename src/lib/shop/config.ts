@@ -39,7 +39,7 @@ export const shopConfig = {
   },
 
   contact: {
-    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "studio@recklesslab.com",
+    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "labreckless@gmail.com",
     homeCountry: "GM", // ISO — The Gambia
   },
 } as const;

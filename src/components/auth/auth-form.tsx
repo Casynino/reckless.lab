@@ -3,7 +3,12 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { loginAction, registerAction, type AuthState } from "@/lib/auth/actions";
+import { shopConfig } from "@/lib/shop/config";
 import { cn } from "@/lib/utils";
+
+const FORGOT_WA = `https://wa.me/${shopConfig.whatsapp.number}?text=${encodeURIComponent(
+  "Hi Reckless Lab — I forgot my account password and need help resetting it. My account email is: ",
+)}`;
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -62,6 +67,14 @@ export function AuthForm({ next }: { next?: string }) {
             <p className="text-mono text-[0.65rem] uppercase tracking-[0.15em] text-acid">↳ {state.error}</p>
           )}
           <SubmitButton label="Sign In" />
+          <a
+            href={FORGOT_WA}
+            target="_blank"
+            rel="noreferrer"
+            className="text-center text-mono text-[0.6rem] uppercase tracking-[0.15em] text-ash transition-colors hover:text-bone"
+          >
+            Forgot your password? Reset via WhatsApp →
+          </a>
         </form>
       ) : (
         <form action={register} className="flex flex-col gap-5">
