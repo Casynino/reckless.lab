@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth/session-cookies";
+import { getCurrentUser } from "@/lib/auth/session-cookies";
 
-/** Lightweight session probe for client components (e.g. the header). */
+/** Lightweight user probe for client components (e.g. the header). Reads the
+ *  name/role FRESH from the DB so it's never a stale token value. */
 export async function GET() {
-  const session = await getSession();
+  const user = await getCurrentUser();
   return NextResponse.json(
-    { user: session ? { name: session.name, role: session.role } : null },
+    { user: user ? { name: user.name, email: user.email, role: user.role } : null },
     { headers: { "cache-control": "no-store" } },
   );
 }

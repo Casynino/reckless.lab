@@ -10,7 +10,16 @@ export const SESSION_COOKIE = "rl_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 function secretKey(): Uint8Array {
-  const secret = process.env.AUTH_SECRET ?? "reckless-dev-secret-change-in-production";
+  const secret = process.env.AUTH_SECRET;
+  // In production a missing secret would sign every session with a public
+  // constant — anyone could forge an admin token. Hard-fail instead. In dev we
+  // fall back to a fixed string so local work isn't blocked.
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("AUTH_SECRET is not set — refusing to sign sessions with a public fallback in production.");
+    }
+    return new TextEncoder().encode("reckless-dev-secret-change-in-production");
+  }
   return new TextEncoder().encode(secret);
 }
 

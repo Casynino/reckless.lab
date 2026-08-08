@@ -1,16 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth/session-cookies";
+import { getSession, getCurrentUser } from "@/lib/auth/session-cookies";
 import { addMessage, getOrCreateForCustomer, getConversationById, markRead } from "./store";
 
 /** Customer sends a message on their own support thread. */
 export async function sendCustomerMessageAction(body: string) {
-  const session = await getSession();
-  if (!session) return { error: "You're signed out." };
+  const user = await getCurrentUser();
+  if (!user) return { error: "You're signed out." };
   const text = body.trim();
   if (!text) return { error: "Type a message." };
-  const convo = await getOrCreateForCustomer({ id: session.sub, name: session.name, email: session.email });
+  const convo = await getOrCreateForCustomer({ id: user.id, name: user.name, email: user.email });
   await addMessage(convo.id, "customer", text);
   revalidatePath("/account/messages");
   revalidatePath("/admin/messages");

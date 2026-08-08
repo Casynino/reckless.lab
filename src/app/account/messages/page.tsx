@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getSession } from "@/lib/auth/session-cookies";
+import { getCurrentUser } from "@/lib/auth/session-cookies";
 import { getOrCreateForCustomer, markRead } from "@/lib/messages/store";
 import { PageHero } from "@/components/layout/page-hero";
 import { ChatThread } from "@/components/chat/chat-thread";
@@ -11,10 +11,10 @@ export const metadata: Metadata = { title: "Support" };
 export const dynamic = "force-dynamic";
 
 export default async function CustomerMessages() {
-  const session = await getSession();
-  if (!session) redirect("/login?next=/account/messages");
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/account/messages");
 
-  const convo = await getOrCreateForCustomer({ id: session.sub, name: session.name, email: session.email });
+  const convo = await getOrCreateForCustomer({ id: user.id, name: user.name, email: user.email });
   await markRead(convo.id, "customer");
 
   return (

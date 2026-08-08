@@ -3,7 +3,7 @@ import { shopConfig } from "@/lib/shop/config";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shop/shipping";
 import { getShippingRegions } from "@/lib/shop/shipping-store";
 import { formatPrice } from "@/lib/shop/format";
-import { getSession } from "@/lib/auth/session-cookies";
+import { getCurrentUser } from "@/lib/auth/session-cookies";
 import { ProfileForm } from "@/components/account/profile-form";
 import Link from "next/link";
 
@@ -19,17 +19,17 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default async function AdminSettings() {
-  const session = await getSession();
+  const me = await getCurrentUser();
   const shippingRegions = await getShippingRegions();
 
   return (
     <div>
       <PageTitle title="Settings" subtitle="Your profile + current store configuration." />
 
-      {session && (
+      {me && (
         <div className="mb-8 rounded-2xl border border-smoke bg-ink-soft p-6">
           <h2 className="mb-6 text-mono text-xs uppercase tracking-[0.15em] text-bone">My profile</h2>
-          <ProfileForm name={session.name} email={session.email} />
+          <ProfileForm name={me.name} email={me.email} />
         </div>
       )}
 

@@ -22,8 +22,7 @@ const GREEN = "rgba(52,211,153,0.9)";
 /**
  * Animated order tracking timeline. Completed nodes glow green, the current
  * node pulses red (with a ping + glow), future nodes stay faded. The connecting
- * line grows to the current stage. Modelled on the Haodeals order tracker,
- * rebuilt in Reckless's ink + red language.
+ * line grows to the current stage, in Reckless's ink + red language.
  */
 export function OrderTracker({
   state,

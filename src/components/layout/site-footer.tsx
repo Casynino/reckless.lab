@@ -52,9 +52,11 @@ export function SiteFooter() {
           <a href={shopConfig.social.instagram} target="_blank" rel="noreferrer" className="link-underline w-fit text-sm text-bone-dim hover:text-bone">
             Instagram
           </a>
-          <a href={shopConfig.social.tiktok} target="_blank" rel="noreferrer" className="link-underline w-fit text-sm text-bone-dim hover:text-bone">
-            TikTok
-          </a>
+          {shopConfig.social.tiktok && shopConfig.social.tiktok !== "https://tiktok.com" && (
+            <a href={shopConfig.social.tiktok} target="_blank" rel="noreferrer" className="link-underline w-fit text-sm text-bone-dim hover:text-bone">
+              TikTok
+            </a>
+          )}
           <a href={`mailto:${shopConfig.contact.email}`} className="link-underline w-fit text-sm text-bone-dim hover:text-bone">
             {shopConfig.contact.email}
           </a>

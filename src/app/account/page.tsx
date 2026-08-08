@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session-cookies";
+import { getCurrentUser } from "@/lib/auth/session-cookies";
 import { listOrdersForEmail } from "@/lib/orders/store";
 import { listAddresses } from "@/lib/account/addresses";
 import { getAllProducts } from "@/lib/data";
@@ -11,23 +11,23 @@ export const metadata: Metadata = { title: "Your Account" };
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
-  const session = await getSession();
-  if (!session) redirect("/login?next=/account");
-  if (session.role === "admin") redirect("/admin");
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/account");
+  if (user.role === "admin") redirect("/admin");
 
   const [orders, addresses, allProducts] = await Promise.all([
-    listOrdersForEmail(session.email),
-    listAddresses(session.sub),
+    listOrdersForEmail(user.email),
+    listAddresses(user.id),
     getAllProducts(),
   ]);
-  const firstName = session.name.split(" ")[0];
+  const firstName = user.name.split(" ")[0];
 
   return (
     <div className="pb-24">
-      <PageHero code="[ ACCOUNT / YOUR LAB PASS ]" title={`Hey, ${firstName}.`} tagline={session.email} />
+      <PageHero code="[ ACCOUNT / YOUR LAB PASS ]" title={`Hey, ${firstName}.`} tagline={user.email} />
       <CustomerDashboard
-        name={session.name}
-        email={session.email}
+        name={user.name}
+        email={user.email}
         orders={orders}
         addresses={addresses}
         allProducts={allProducts}

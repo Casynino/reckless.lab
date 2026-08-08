@@ -1,6 +1,6 @@
 /**
- * Orders domain — a staged order with a tracking timeline, modelled on the
- * Haodeals flow (New → Payment → Packaging → Ready → In Transit → Delivered).
+ * Orders domain — a staged order with a tracking timeline
+ * (New → Payment → Packaging → Ready → In Transit → Delivered).
  */
 
 export type OrderStage =
