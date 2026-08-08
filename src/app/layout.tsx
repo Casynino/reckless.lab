@@ -24,14 +24,11 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
-// Absolute base for OG/social image URLs. Must be the LIVE origin or link
-// previews (WhatsApp etc.) can't fetch the og:image. Override with
-// NEXT_PUBLIC_SITE_URL when a custom domain is live.
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "https://reckless-lab.vercel.app");
+// Absolute base for OG/social image URLs + canonical links. Must be the LIVE
+// origin or link previews (WhatsApp etc.) can't fetch the og:image. The live
+// custom domain is the default; override with NEXT_PUBLIC_SITE_URL if it ever
+// changes.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://recklesslab.shop";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
