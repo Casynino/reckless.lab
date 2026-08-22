@@ -431,6 +431,34 @@ model NewsletterSubscriber {
   createdAt DateTime @default(now())
 }
 
+model Drop {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  name        String
+  teaser      String           @default("")
+  description String           @default("")
+  image       String           @default("")
+  launchAt    DateTime
+  ctaHref     String           @default("/collections/new-arrivals")
+  published   Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  subscribers DropSubscriber[]
+
+  @@index([published, launchAt])
+}
+
+model DropSubscriber {
+  id        String   @id @default(cuid())
+  dropId    String
+  drop      Drop     @relation(fields: [dropId], references: [id], onDelete: Cascade)
+  email     String
+  createdAt DateTime @default(now())
+
+  @@unique([dropId, email])
+  @@index([dropId])
+}
+
 // ─────────────────────────────── Community ───────────────────────────────
 model Review {
   id           String       @id @default(cuid())

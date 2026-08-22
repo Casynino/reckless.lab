@@ -16,6 +16,7 @@ import {
   Ticket,
   Truck,
   Star,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
@@ -33,6 +34,7 @@ const GROUPS: { title: string; items: { label: string; href: string; icon: Lucid
       { label: "Products", href: "/admin/products", icon: Shirt },
       { label: "Inventory", href: "/admin/inventory", icon: Boxes },
       { label: "Promotions", href: "/admin/promotions", icon: Ticket },
+      { label: "Drops", href: "/admin/drops", icon: Zap },
       { label: "Shipping", href: "/admin/shipping", icon: Truck },
     ],
   },

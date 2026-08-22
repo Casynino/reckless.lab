@@ -1,5 +1,6 @@
 /** Primary navigation surfaced in the header + fullscreen menu. */
 export const primaryNav: { label: string; href: string; meta: string }[] = [
+  { label: "The Drop", href: "/drops", meta: "LAB//LIVE" },
   { label: "New Arrivals", href: "/collections/new-arrivals", meta: "LAB//NEW" },
   { label: "The ‘I Exist’ Series", href: "/collections/i-exist", meta: "SET//01" },
   { label: "The ‘Identity’ Series", href: "/collections/identity", meta: "SET//02" },
