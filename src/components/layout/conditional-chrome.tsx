@@ -11,11 +11,15 @@ import { CartDrawer } from "@/components/cart/cart-drawer";
 
 /**
  * The storefront chrome (intro, cursor, header, footer, cart) wraps every page
- * EXCEPT the admin HQ and the auth screen, which bring their own shell.
+ * EXCEPT the admin HQ, the auth screen and the maintenance screen, which bring
+ * their own shell.
  */
 export function ConditionalChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const bare = pathname.startsWith("/admin") || pathname.startsWith("/login");
+  const bare =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/maintenance");
 
   if (bare) return <>{children}</>;
 
