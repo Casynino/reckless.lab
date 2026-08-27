@@ -398,3 +398,49 @@ body {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
   }
 }
+
+/* ============================================================
+   Maintenance screen
+   CSS, not Framer Motion, on purpose: the dark-store page has to
+   read instantly on a slow phone, so nothing here waits for JS.
+   ============================================================ */
+@keyframes rl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rl-rise {
+  animation: rl-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes rl-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+.rl-sweep {
+  animation: rl-sweep 2.6s ease-in-out infinite;
+}
+
+@keyframes rl-bloom {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.12);
+    opacity: 0.9;
+  }
+}
+.rl-bloom {
+  animation: rl-bloom 9s ease-in-out infinite;
+}
