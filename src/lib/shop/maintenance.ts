@@ -11,7 +11,7 @@
  * Flipping this is a one-line commit + push (Vercel redeploys in ~1 min).
  */
 export const maintenance = {
-  enabled: false,
+  enabled: true,
 
   /** Big line. Keep it short. */
   headline: "We'll be right back",
