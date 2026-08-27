@@ -4,9 +4,9 @@
  * `enabled: true`  → middleware bounces every public route to /maintenance.
  * `enabled: false` → normal storefront, and /maintenance redirects to home.
  *
- * HQ stays reachable either way: /admin, /login and /api are never gated, and
- * a signed-in admin browses the live storefront as normal so the store can be
- * checked before it reopens.
+ * HQ stays reachable either way: /admin, /login and /api are never gated. The
+ * storefront itself is dark for everyone, admins included — so what you see is
+ * what a customer sees.
  *
  * Flipping this is a one-line commit + push (Vercel redeploys in ~1 min).
  */

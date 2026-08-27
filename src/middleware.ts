@@ -7,7 +7,10 @@ const ALWAYS_OPEN = ["/admin", "/login", "/api", "/maintenance"];
 
 /**
  * Route guards:
- *   maintenance → every public route bounces to /maintenance (admins exempt)
+ *   maintenance → every public route bounces to /maintenance, no exceptions.
+ *                 HQ (/admin, /login, /api) stays open so the shop can still
+ *                 be run while it's dark. Deliberately no admin bypass: the
+ *                 owner needs to see what customers see.
  *   /admin/*    → admins only (others bounce to /account or /login)
  *   /account/*  → any signed-in user
  */
@@ -18,7 +21,6 @@ export async function middleware(req: NextRequest) {
 
   if (
     maintenance.enabled &&
-    session?.role !== "admin" &&
     !ALWAYS_OPEN.some((p) => pathname === p || pathname.startsWith(p + "/"))
   ) {
     return NextResponse.redirect(new URL("/maintenance", req.url));
